@@ -1,0 +1,184 @@
+/* --- VARIABLES ET FOND --- */
+:host {
+  --m-bg: #0f172a;
+  --m-surface: #1e293b;
+  --m-border: #334155;
+  --m-text: #f8fafc;
+  --m-text-dim: #94a3b8;
+  --m-accent: #3b82f6;
+  --m-danger: #ef4444;
+  --m-warning: #f59e0b;
+  --m-success: #10b981;
+}
+
+.manuel-page-container {
+  background-color: var(--m-bg);
+  min-height: 100vh;
+  padding: 40px 20px;
+  color: var(--m-text);
+  font-family: 'Inter', sans-serif;
+}
+
+/* --- NAVBAR (Identique aux autres pages) --- */
+.manuel-navbar {
+  background: var(--m-surface);
+  border-bottom: 1px solid var(--m-border);
+  padding: 0 30px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+}
+
+.manuel-nav-container { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+.manuel-admin-badge { background: var(--m-accent); padding: 5px 15px; border-radius: 4px; font-weight: bold; }
+.manuel-nav-link { color: var(--m-text-dim); text-decoration: none; margin: 0 15px; transition: 0.3s; }
+
+.manuel-btn-logout {
+  background: transparent;
+  border: 1px solid var(--m-danger);
+  color: var(--m-danger);
+  padding: 6px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+/* --- CARD HISTORIQUE --- */
+.manuel-main-content {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.manuel-card-full {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.manuel-card-header-flex {
+  padding: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--m-border);
+}
+
+.manuel-title-page { font-size: 1.8rem; margin: 0; }
+.manuel-title-page span { color: var(--m-accent); }
+.manuel-subtitle { color: var(--m-text-dim); margin: 5px 0 0; font-size: 0.9rem; }
+
+/* --- INDICATEUR LIVE --- */
+.manuel-live-indicator {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--m-accent);
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.manuel-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--m-accent);
+  border-radius: 50%;
+  animation: manuel-pulse 1.5s infinite;
+}
+
+@keyframes manuel-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+/* --- BODY & CHART --- */
+.manuel-card-body {
+  padding: 30px;
+  min-height: 450px;
+}
+
+.manuel-chart-wrapper {
+  position: relative;
+  height: 400px;
+  width: 100%;
+}
+
+/* --- LOADER & ALERTS --- */
+.manuel-loader-container {
+  text-align: center;
+  padding: 80px 0;
+}
+
+.manuel-loader {
+  width: 45px;
+  height: 45px;
+  border: 4px solid var(--m-border);
+  border-top-color: var(--m-accent);
+  border-radius: 50%;
+  margin: 0 auto 15px;
+  animation: manuel-spin 1s linear infinite;
+}
+
+@keyframes manuel-spin { to { transform: rotate(360deg); } }
+
+.manuel-alert-warning {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid var(--m-warning);
+  color: var(--m-warning);
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+}
+
+.manuel-alert-icon { font-size: 2rem; display: block; margin-bottom: 10px; }
+
+/* --- ACTIONS FOOTER --- */
+.manuel-footer-actions {
+    margin-top: 20px;
+}
+
+.manuel-btn-back {
+    background: transparent;
+    border: 1px solid var(--m-border);
+    color: var(--m-text-dim);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.manuel-btn-back:hover {
+    color: white;
+    border-color: var(--m-accent);
+}
+/* Ajoute ça à ton fichier existant */
+.manuel-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.manuel-stat-card {
+    background: var(--m-surface);
+    border: 1px solid var(--m-border);
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.m-label { color: var(--m-text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+.m-value { font-size: 1.5rem; font-weight: bold; margin-top: 5px; }
+
+.text-warning { color: var(--m-warning); }
+.text-info { color: var(--m-accent); }
+.text-success { color: var(--m-success); }
+
+/* Reste du code CSS manuel- déjà fourni... */

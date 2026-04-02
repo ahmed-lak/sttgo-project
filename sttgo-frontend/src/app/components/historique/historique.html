@@ -1,0 +1,56 @@
+<nav class="manuel-navbar">
+  <div class="manuel-nav-container">
+    <div class="manuel-nav-brand" routerLink="/dashboard">
+      <span class="manuel-admin-badge">STTGO</span>
+    </div>
+    <div class="manuel-nav-menu">
+      <a routerLink="/dashboard" class="manuel-nav-link">Tableau de Bord</a>
+      <a routerLink="/Citernes" class="manuel-nav-link">Gestion Citernes</a>
+    </div>
+    <div class="manuel-nav-actions">
+      <button class="manuel-btn-logout" (click)="logout()">Déconnexion</button>
+    </div>
+  </div>
+</nav>
+
+<div class="manuel-page-container">
+  <div class="manuel-main-content">
+    
+    <div class="manuel-stats-grid" *ngIf="!isLoading">
+        <div class="manuel-stat-card">
+            <span class="m-label">Conso. 24h</span>
+            <span class="m-value text-warning">{{ stats.jour | number:'1.0-0' }} L</span>
+        </div>
+        <div class="manuel-stat-card">
+            <span class="m-label">7 derniers jours</span>
+            <span class="m-value text-info">{{ stats.semaine | number:'1.0-0' }} L</span>
+        </div>
+        <div class="manuel-stat-card">
+            <span class="m-label">30 derniers jours</span>
+            <span class="m-value text-success">{{ stats.mois | number:'1.0-0' }} L</span>
+        </div>
+    </div>
+
+    <div class="manuel-card-full">
+      <div class="manuel-card-header-flex">
+        <div class="manuel-header-text">
+          <h2 class="manuel-title-page">Analyse Graphique <span>Citerne #{{ citerneId }}</span></h2>
+        </div>
+        <div class="manuel-live-indicator"><span class="manuel-dot"></span> Données IoT</div>
+      </div>
+
+      <div class="manuel-card-body">
+        <div class="manuel-loader-container" *ngIf="isLoading">
+          <div class="manuel-loader"></div>
+        </div>
+        <div class="manuel-chart-wrapper" [style.display]="(isLoading || errorMessage) ? 'none' : 'block'">
+          <canvas #historiqueChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="manuel-footer-actions">
+        <button class="manuel-btn-back" (click)="retour()">← Retour au Dashboard</button>
+    </div>
+  </div>
+</div>

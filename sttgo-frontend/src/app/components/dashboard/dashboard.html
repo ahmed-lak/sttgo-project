@@ -1,0 +1,101 @@
+<nav class="manuel-navbar">
+  <div class="manuel-nav-container">
+    <div class="manuel-nav-brand" routerLink="/dashboard">
+      <span class="manuel-admin-badge">STTGO</span>
+    </div>
+
+    <div class="manuel-nav-menu">
+      <a routerLink="/dashboard" class="manuel-nav-link manuel-active">Tableau de Bord</a>
+      <a routerLink="/Citernes" class="manuel-nav-link">Gestion Citernes</a>
+    </div>
+
+    <div class="manuel-nav-actions">
+      <div class="manuel-user-info">
+        <span class="manuel-user-name">Admin</span>
+        <button class="manuel-btn-logout" (click)="logout()">Déconnexion</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="manuel-page-container">
+  <header class="manuel-header">
+    <h1 class="manuel-title">Surveillance <span>IoT</span></h1>
+    <p class="manuel-subtitle">État des stocks en temps réel</p>
+    
+    <div class="manuel-filter-bar" *ngIf="mesures.length > 0">
+      <button 
+        [class.active]="filtreActuel === 'TOUT'" 
+        (click)="setFiltre('TOUT')">
+        Toutes ({{ mesures.length }})
+      </button>
+      
+      <button 
+        *ngFor="let p of produitsDisponibles"
+        [class.active]="filtreActuel === p"
+        (click)="setFiltre(p)"
+        [style.border-bottom-color]="getProduitColor(p)">
+        {{ p }}
+      </button>
+    </div>
+
+    <div class="manuel-divider"></div>
+  </header>
+
+  <div class="manuel-grid" *ngIf="mesuresFiltrees.length > 0">
+    <div class="manuel-card" *ngFor="let m of mesuresFiltrees">
+      
+      <div class="manuel-card-header">
+        <h3 class="manuel-tank-name">{{ m.citerne.nom }}</h3>
+        <div class="manuel-badge-group">
+          <span class="manuel-badge-item" [style.color]="getProduitColor(m.citerne.produit)">
+            ● {{ m.citerne.produit }}
+          </span>
+          <span class="manuel-badge-item">{{ m.citerne.type }}</span>
+        </div>
+        <div class="manuel-status" [ngClass]="getStatusClass(m.pourcentage)">
+          {{ getStatusLabel(m.pourcentage) }}
+        </div>
+      </div>
+
+      <div class="manuel-card-body">
+        <div class="manuel-visual-area">
+          <div class="manuel-tank-frame" 
+               [ngClass]="m.citerne.type === 'HORIZONTAL' ? 'manuel-horizontal' : 'manuel-vertical'">
+            
+            <div class="manuel-liquid"
+                 [style.height.%]="m.citerne.type === 'HORIZONTAL' ? 100 : m.pourcentage"
+                 [style.width.%]="m.citerne.type === 'HORIZONTAL' ? m.pourcentage : 100"
+                 [style.background-color]="getColor(m.pourcentage)">
+              <span class="manuel-percent-label">{{ m.pourcentage | number:'1.0-0' }}%</span>
+            </div>
+            
+            <div class="manuel-glass-reflection"></div>
+          </div>
+        </div>
+
+        <div class="manuel-stats-row">
+          <div class="manuel-stat-box">
+            <span class="manuel-stat-label">Volume</span>
+            <span class="manuel-stat-val">{{ m.volume | number:'1.0-0' }} <small>L</small></span>
+          </div>
+          <div class="manuel-stat-box">
+            <span class="manuel-stat-label">Niveau</span>
+            <span class="manuel-stat-val">{{ m.niveau }} <small>cm</small></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="manuel-card-footer">
+        <div class="manuel-time">MàJ: {{ m.dateMesure | date:'HH:mm:ss' }}</div>
+        <a class="manuel-btn-detail" [routerLink]="['/historique', m.citerne.id]">Historique</a>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="manuel-empty-state" *ngIf="mesuresFiltrees.length === 0">
+    <div class="manuel-loader" *ngIf="isLoading"></div>
+    <p>{{ isLoading ? 'Récupération des données capteurs...' : 'Aucune citerne ne correspond à ce filtre.' }}</p>
+  </div>
+</div>

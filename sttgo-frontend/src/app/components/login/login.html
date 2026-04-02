@@ -1,0 +1,26 @@
+<div class="login-wrapper">
+  <div class="login-card">
+    
+    <div class="login-header">
+      <h3>STTGO - Connexion</h3>
+      <p>Accès au Dashboard IoT</p>
+    </div>
+
+    <div class="form-group">
+      <label>Nom d'utilisateur</label>
+      <input type="text" [(ngModel)]="username" class="custom-input" placeholder="Saisissez votre identifiant">
+    </div>
+
+    <div class="form-group">
+      <label>Mot de passe</label>
+      <input type="password" [(ngModel)]="password" class="custom-input" placeholder="••••••••">
+    </div>
+
+    <button (click)="onLogin()" class="btn-login">Se connecter</button>
+
+    <div *ngIf="error" class="error-alert">
+      <span class="error-icon">⚠</span> {{error}}
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,141 @@
+/* Variables du projet pour garder la cohérence */
+:root {
+  --primary: #198754; 
+  --primary-hover: #157347;
+  --bg-body: #f3f4f6;
+  --surface: #ffffff;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --red-bg: #fef2f2;
+  --red-text: #ef4444;
+  --red-border: #fca5a5;
+}
+
+/* Le fond d'écran et le centrage */
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-body);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* La carte blanche de connexion */
+.login-card {
+  background: var(--surface);
+  width: 100%;
+  max-width: 420px;
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+/* En-tête (Titres) */
+.login-header {
+  text-align: center;
+  margin-bottom: 35px;
+}
+.login-header h3 {
+  margin: 0 0 8px 0;
+  color: var(--text-main);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.login-header p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* Formulaire */
+.form-group {
+  margin-bottom: 20px;
+}
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+/* Champs de texte (Inputs) */
+.custom-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 15px;
+  color: var(--text-main);
+  background-color: #f9fafb;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  outline: none;
+}
+.custom-input::placeholder {
+  color: #9ca3af;
+}
+.custom-input:focus {
+  background-color: var(--surface);
+  border-color: var(--primary);
+  /* Bel effet d'aura verte quand on clique dedans */
+  box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.15); 
+}
+
+/* Bouton principal */
+.btn-login {
+  width: 100%;
+  background-color: var(--primary);
+  color: rgb(176, 60, 60);
+  border: none;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s, transform 0.1s;
+}
+.btn-login:hover {
+  background-color: var(--primary-hover);
+}
+.btn-login:active {
+  transform: scale(0.98); /* Petit effet d'enfoncement au clic */
+}
+
+/* Message d'erreur */
+.error-alert {
+  margin-top: 20px;
+  padding: 12px 16px;
+  background-color: var(--red-bg);
+  border: 1px solid var(--red-border);
+  color: var(--red-text);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: shake 0.4s ease-in-out; /* Tremblement si erreur */
+}
+
+.error-icon {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Animation sympa pour l'erreur */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}

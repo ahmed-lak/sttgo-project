@@ -1,0 +1,127 @@
+<nav class="manuel-navbar">
+  <div class="manuel-nav-container">
+    <div class="manuel-nav-brand" routerLink="/dashboard">
+      <span class="manuel-admin-badge">STTGO</span>
+    </div>
+
+    <div class="manuel-nav-menu">
+      <a routerLink="/dashboard" class="manuel-nav-link">Tableau de Bord</a>
+      <a routerLink="/Citernes" class="manuel-nav-link manuel-active">Gestion Citernes</a>
+    </div>
+
+    <div class="manuel-nav-actions">
+      <div class="manuel-user-info">
+        <button class="manuel-btn-logout" (click)="logout()">Déconnexion</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="manuel-page-container">
+  <div class="manuel-main-content">
+    <header class="manuel-header-flex">
+      <div class="manuel-header-text">
+        <h2 class="manuel-title-page">Parc des <span>Citernes</span></h2>
+        <p class="manuel-subtitle">Configuration des dimensions et types de carburants</p>
+      </div>
+      <button class="manuel-btn-add" (click)="prepareNew()">
+        + Ajouter une Citerne
+      </button>
+    </header>
+
+    <div class="manuel-table-wrapper">
+      <table class="manuel-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Produit</th>
+            <th>Type</th>
+            <th>Capacité</th>
+            <th>Dimensions (cm)</th>
+            <th class="manuel-text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of citernes">
+            <td class="manuel-td-id">#{{ c.id }}</td>
+            <td class="manuel-td-name">{{ c.nom }}</td>
+            <td><span class="manuel-badge-blue">{{ c.produit }}</span></td>
+            <td><span class="manuel-badge-gray">{{ c.type }}</span></td>
+            <td class="manuel-td-cap">{{ c.capaciteMax | number }} L</td>
+            <td>
+              <div class="manuel-dim-pill">
+                Ø:{{c.diametre}} | H:{{c.hauteurTotale}} {{c.type === 'HORIZONTAL' ? '| L:' + c.longueur : ''}}
+              </div>
+            </td>
+            <td class="manuel-text-right">
+              <button class="manuel-action-btn manuel-edit" (click)="editCiterne(c)">✎</button>
+              <button class="manuel-action-btn manuel-delete" (click)="deleteCiterne(c.id)">✕</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="manuel-modal-overlay" *ngIf="showModal">
+  <div class="manuel-modal-card">
+    <div class="manuel-modal-header">
+      <h3>{{ isEditMode ? 'Modifier' : 'Ajouter' }} une Citerne</h3>
+      <button class="manuel-close-x" (click)="showModal = false">×</button>
+    </div>
+    
+    <div class="manuel-modal-body">
+      <div class="manuel-form-group">
+        <label>Nom de la Citerne</label>
+        <input type="text" [(ngModel)]="selectedCiterne.nom" placeholder="Ex: Citerne Principale">
+      </div>
+
+      <div class="manuel-form-row">
+        <div class="manuel-form-group">
+          <label>Produit</label>
+          <select [(ngModel)]="selectedCiterne.produit">
+            <option value="Gasoil">Gasoil</option>
+            <option value="Essence">Essence</option>
+            <option value="Huile">Huile</option>
+          </select>
+        </div>
+        <div class="manuel-form-group">
+          <label>Type de Citerne</label>
+          <select [(ngModel)]="selectedCiterne.type">
+            <option value="VERTICAL">Verticale</option>
+            <option value="HORIZONTAL">Horizontale</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="manuel-form-row">
+        <div class="manuel-form-group">
+          <label>Diamètre (cm)</label>
+          <input type="number" [(ngModel)]="selectedCiterne.diametre">
+        </div>
+        <div class="manuel-form-group">
+          <label>Hauteur Totale (cm)</label>
+          <input type="number" [(ngModel)]="selectedCiterne.hauteurTotale">
+        </div>
+      </div>
+
+      <div class="manuel-form-row">
+        <div class="manuel-form-group">
+          <label>Capacité Max (L)</label>
+          <input type="number" [(ngModel)]="selectedCiterne.capaciteMax">
+        </div>
+        <div class="manuel-form-group">
+          <label>Longueur (cm) <small *ngIf="selectedCiterne.type === 'VERTICAL'">(N/A)</small></label>
+          <input type="number" [(ngModel)]="selectedCiterne.longueur" [disabled]="selectedCiterne.type === 'VERTICAL'">
+        </div>
+      </div>
+    </div>
+
+    <div class="manuel-modal-footer">
+      <button class="manuel-btn-cancel" (click)="showModal = false">Annuler</button>
+      <button class="manuel-btn-save" (click)="saveCiterne()">Enregistrer la configuration</button>
+    </div>
+  </div>
+</div>
