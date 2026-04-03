@@ -1,0 +1,149 @@
+1775227570: mosquitto version 2.1.2 starting
+1775227570: Config loaded from /mosquitto/config/mosquitto.conf.
+1775227570: Bridge support available.
+1775227570: Persistence support available.
+1775227570: TLS support available.
+1775227570: TLS-PSK support available.
+1775227570: Websockets support available.
+1775227570: Opening ipv4 listen socket on port 1883.
+1775227570: Opening ipv6 listen socket on port 1883.
+1775227570: mosquitto version 2.1.2 running
+1775228203: mosquitto version 2.1.2 terminating
+1775228203: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775229835: mosquitto version 2.1.2 starting
+1775229835: Config loaded from /mosquitto/config/mosquitto.conf.
+1775229835: Bridge support available.
+1775229835: Persistence support available.
+1775229835: TLS support available.
+1775229835: TLS-PSK support available.
+1775229835: Websockets support available.
+1775229835: Opening ipv4 listen socket on port 1883.
+1775229835: Opening ipv6 listen socket on port 1883.
+1775229835: mosquitto version 2.1.2 running
+1775229871: New connection from 172.18.0.4:49496 on port 1883.
+1775229871: New client connected from 172.18.0.4:49496 as paho4981646116138 (p4, c1, k60).
+1775230092: Client paho4981646116138 [172.18.0.4:49496] disconnected.
+1775230146: New connection from 172.18.0.4:38898 on port 1883.
+1775230147: New client connected from 172.18.0.4:38898 as paho5257576230525 (p4, c1, k60).
+1775230953: Client paho5257576230525 [172.18.0.4:38898] disconnected.
+1775230953: mosquitto version 2.1.2 terminating
+1775230953: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775231026: mosquitto version 2.1.2 starting
+1775231026: Config loaded from /mosquitto/config/mosquitto.conf.
+1775231026: Bridge support available.
+1775231026: Persistence support available.
+1775231026: TLS support available.
+1775231026: TLS-PSK support available.
+1775231026: Websockets support available.
+1775231026: Opening ipv4 listen socket on port 1883.
+1775231026: Opening ipv6 listen socket on port 1883.
+1775231026: mosquitto version 2.1.2 running
+1775231035: New connection from 172.18.0.4:60276 on port 1883.
+1775231035: New client connected from 172.18.0.4:60276 as paho6145760940944 (p4, c1, k60).
+1775231305: mosquitto version 2.1.2 terminating
+1775231305: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775231337: mosquitto version 2.1.2 starting
+1775231337: Config loaded from /mosquitto/config/mosquitto.conf.
+1775231337: Bridge support available.
+1775231337: Persistence support available.
+1775231337: TLS support available.
+1775231337: TLS-PSK support available.
+1775231337: Websockets support available.
+1775231337: Opening ipv4 listen socket on port 1883.
+1775231337: Opening ipv6 listen socket on port 1883.
+1775231337: mosquitto version 2.1.2 running
+1775231346: New connection from 172.18.0.4:43228 on port 1883.
+1775231347: New client connected from 172.18.0.4:43228 as paho6145760940944 (p4, c1, k60).
+1775231474: Client paho6145760940944 [172.18.0.4:43228] disconnected.
+1775231481: New connection from 172.18.0.4:36836 on port 1883.
+1775231481: New client connected from 172.18.0.4:36836 as paho6592183897203 (p4, c1, k60).
+1775231949: Client paho6592183897203 [172.18.0.4:36836] disconnected.
+1775231949: mosquitto version 2.1.2 terminating
+1775231949: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775231954: mosquitto version 2.1.2 starting
+1775231954: Config loaded from /mosquitto/config/mosquitto.conf.
+1775231954: Bridge support available.
+1775231954: Persistence support available.
+1775231954: TLS support available.
+1775231954: TLS-PSK support available.
+1775231954: Websockets support available.
+1775231954: Opening ipv4 listen socket on port 1883.
+1775231954: Opening ipv6 listen socket on port 1883.
+1775231954: mosquitto version 2.1.2 running
+1775231990: New connection from 172.18.0.4:38792 on port 1883.
+1775231990: New client connected from 172.18.0.4:38792 as paho7100778603692 (p4, c1, k60).
+1775232991: Client paho7100778603692 [172.18.0.4:38792] disconnected.
+1775232997: New connection from 172.18.0.4:53376 on port 1883.
+1775232997: New client connected from 172.18.0.4:53376 as paho8107866921950 (p4, c1, k60).
+1775233342: Client paho8107866921950 [172.18.0.4:53376] disconnected.
+1775233377: New connection from 172.18.0.4:45154 on port 1883.
+1775233377: New client connected from 172.18.0.4:45154 as paho8487849630532 (p4, c1, k60).
+1775233754: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775234745: New connection from 172.18.0.1:37864 on port 1883.
+1775234745: New client connected from 172.18.0.1:37864 as ESP32_Citerne (p4, c1, k15).
+1775234759: Client paho8487849630532 [172.18.0.4:45154] disconnected.
+1775234759: mosquitto version 2.1.2 terminating
+1775234759: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775234763: mosquitto version 2.1.2 starting
+1775234763: Config loaded from /mosquitto/config/mosquitto.conf.
+1775234763: Bridge support available.
+1775234763: Persistence support available.
+1775234763: TLS support available.
+1775234763: TLS-PSK support available.
+1775234763: Websockets support available.
+1775234763: Opening ipv4 listen socket on port 1883.
+1775234763: Opening ipv6 listen socket on port 1883.
+1775234763: mosquitto version 2.1.2 running
+1775234779: New connection from 172.18.0.1:54310 on port 1883.
+1775234779: New client connected from 172.18.0.1:54310 as ESP32_Citerne (p4, c1, k15).
+1775234799: New connection from 172.18.0.4:60424 on port 1883.
+1775234799: New client connected from 172.18.0.4:60424 as paho9910053999294 (p4, c1, k60).
+1775234810: New connection from 172.18.0.1:54094 on port 1883.
+1775234810: Protocol error from 172.18.0.1:54094: First packet not CONNECT (47).
+1775234810: Client 172.18.0.1 [172.18.0.1:54094] disconnected: protocol error.
+1775234810: New connection from 172.18.0.1:54104 on port 1883.
+1775234810: Protocol error from 172.18.0.1:54104: First packet not CONNECT (47).
+1775234810: Client 172.18.0.1 [172.18.0.1:54104] disconnected: protocol error.
+1775234810: New connection from 172.18.0.1:54108 on port 1883.
+1775234810: New connection from 172.18.0.1:54124 on port 1883.
+1775234811: Protocol error from 172.18.0.1:54108: First packet not CONNECT (47).
+1775234811: Client 172.18.0.1 [172.18.0.1:54108] disconnected: protocol error.
+1775234811: Protocol error from 172.18.0.1:54124: First packet not CONNECT (47).
+1775234811: Client 172.18.0.1 [172.18.0.1:54124] disconnected: protocol error.
+1775234811: New connection from 172.18.0.1:54138 on port 1883.
+1775234811: Protocol error from 172.18.0.1:54138: First packet not CONNECT (47).
+1775234811: Client 172.18.0.1 [172.18.0.1:54138] disconnected: protocol error.
+1775234816: New connection from 172.18.0.1:54146 on port 1883.
+1775234816: Protocol error from 172.18.0.1:54146: First packet not CONNECT (47).
+1775234816: Client 172.18.0.1 [172.18.0.1:54146] disconnected: protocol error.
+1775234816: New connection from 172.18.0.1:54150 on port 1883.
+1775234816: Protocol error from 172.18.0.1:54150: First packet not CONNECT (47).
+1775234816: Client 172.18.0.1 [172.18.0.1:54150] disconnected: protocol error.
+1775234816: New connection from 172.18.0.1:54158 on port 1883.
+1775234816: Protocol error from 172.18.0.1:54158: First packet not CONNECT (47).
+1775234816: Client 172.18.0.1 [172.18.0.1:54158] disconnected: protocol error.
+1775234847: New connection from 172.18.0.1:34554 on port 1883.
+1775234847: Protocol error from 172.18.0.1:34554: First packet not CONNECT (47).
+1775234847: Client 172.18.0.1 [172.18.0.1:34554] disconnected: protocol error.
+1775234847: New connection from 172.18.0.1:34566 on port 1883.
+1775234847: Protocol error from 172.18.0.1:34566: First packet not CONNECT (47).
+1775234847: Client 172.18.0.1 [172.18.0.1:34566] disconnected: protocol error.
+1775234847: New connection from 172.18.0.1:34568 on port 1883.
+1775234847: New connection from 172.18.0.1:34572 on port 1883.
+1775234848: Protocol error from 172.18.0.1:34568: First packet not CONNECT (47).
+1775234848: Client 172.18.0.1 [172.18.0.1:34568] disconnected: protocol error.
+1775234848: Protocol error from 172.18.0.1:34572: First packet not CONNECT (47).
+1775234848: Client 172.18.0.1 [172.18.0.1:34572] disconnected: protocol error.
+1775234848: New connection from 172.18.0.1:34586 on port 1883.
+1775234848: Protocol error from 172.18.0.1:34586: First packet not CONNECT (47).
+1775234848: Client 172.18.0.1 [172.18.0.1:34586] disconnected: protocol error.
+1775234848: New connection from 172.18.0.1:34588 on port 1883.
+1775234853: Protocol error from 172.18.0.1:34588: First packet not CONNECT (47).
+1775234853: Client 172.18.0.1 [172.18.0.1:34588] disconnected: protocol error.
+1775234853: New connection from 172.18.0.1:59130 on port 1883.
+1775234853: Protocol error from 172.18.0.1:59130: First packet not CONNECT (47).
+1775234853: Client 172.18.0.1 [172.18.0.1:59130] disconnected: protocol error.
+1775234853: New connection from 172.18.0.1:59144 on port 1883.
+1775234853: Protocol error from 172.18.0.1:59144: First packet not CONNECT (47).
+1775234853: Client 172.18.0.1 [172.18.0.1:59144] disconnected: protocol error.
+1775236564: Saving in-memory database to /mosquitto/data//mosquitto.db.
