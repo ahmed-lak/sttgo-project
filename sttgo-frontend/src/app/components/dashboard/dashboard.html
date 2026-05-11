@@ -1,0 +1,228 @@
+<nav class="manuel-navbar">
+  <div class="manuel-nav-container">
+    <div class="manuel-nav-brand" routerLink="/dashboard">
+      <span class="manuel-admin-badge">STTGO</span>
+    </div>
+
+    <div class="manuel-nav-menu">
+      <a routerLink="/dashboard" routerLinkActive="manuel-active" class="manuel-nav-link">Tableau de Bord</a>
+      <a routerLink="/Citernes" routerLinkActive="manuel-active" class="manuel-nav-link">Gestion Citernes</a>
+      <a routerLink="/Depots" routerLinkActive="manuel-active" class="manuel-nav-link">Gestion Dépôts</a>
+      <a routerLink="/Utilisateurs" routerLinkActive="manuel-active" class="manuel-nav-link" *ngIf="auth.isAdmin()">Utilisateurs</a>
+    </div>
+
+    <div class="manuel-nav-actions">
+      <!-- ICONE ALERTE CLOCHE (toujours visible) -->
+      <div class="nav-alert-wrapper">
+        <button class="nav-bell-btn" [class.active]="alertesCiternes.length > 0"
+                (click)="alertesVisible = !alertesVisible" title="Alertes citernes">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span class="nav-bell-badge" *ngIf="alertesCiternes.length > 0">{{ alertesCiternes.length }}</span>
+        </button>
+        <!-- DROPDOWN DES ALERTES -->
+        <div class="nav-alert-dropdown" *ngIf="alertesVisible && alertesCiternes.length > 0">
+          <div class="nav-alert-drop-header">
+            <span>&#9888;&#65039; Citernes Vides</span>
+            <button (click)="alertesVisible = false">&#x2715;</button>
+          </div>
+          <div class="nav-alert-drop-item" *ngFor="let a of alertesCiternes">
+            <div class="nav-alert-drop-icon">&#x1F6E2;</div>
+            <div class="nav-alert-drop-info">
+              <strong>{{ a.nom }}</strong>
+              <span>&#x1F4CD; {{ a.depot }}</span>
+            </div>
+            <span class="nav-alert-drop-badge">VIDE</span>
+          </div>
+        </div>
+        <!-- MESSAGE SI PAS D'ALERTES -->
+        <div class="nav-alert-dropdown nav-alert-ok" *ngIf="alertesVisible && alertesCiternes.length === 0">
+          <div class="nav-alert-drop-header nav-alert-ok-header">
+            <span>✅ Toutes les citernes sont OK</span>
+            <button (click)="alertesVisible = false">&#x2715;</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="manuel-user-info">
+        <span class="manuel-user-name" style="margin-right: 15px;">{{ auth.getUserName() }}</span>
+        <button class="manuel-btn-logout" (click)="logout()">Déconnexion</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+
+
+<div class="manuel-page-container">
+  <header class="manuel-header">
+    <h1 class="manuel-title">Surveillance <span>IoT</span></h1>
+    <p class="manuel-subtitle">État des stocks en temps réel</p>
+    
+    <div class="manuel-filter-bar" *ngIf="mesures.length > 0">
+      <button 
+        [class.active]="filtreActuel === 'TOUT'" 
+        (click)="setFiltre('TOUT')">
+        Toutes ({{ mesures.length }})
+      </button>
+      <button 
+        *ngFor="let p of produitsDisponibles"
+        [class.active]="filtreActuel === p"
+        (click)="setFiltre(p)"
+        [style.border-bottom-color]="getProduitColor(p)">
+        {{ p }}
+      </button>
+
+      <!-- BOUTON SAUVEGARDER CARTE -->
+      <button class="manuel-btn-save-layout" (click)="saveLayout()" *ngIf="auth.isAdmin()" title="Sauvegarder les positions et tailles">
+        💾 Enregistrer Carte
+      </button>
+
+    </div>
+
+    <div class="manuel-divider"></div>
+  </header>
+
+  <div class="manuel-dashboard-body" *ngIf="filteredGroupedDepots.length > 0">
+    <div class="manuel-depot-section" #depotSection
+         *ngFor="let group of filteredGroupedDepots; let i = index; trackBy: trackByDepot"
+         cdkDrag
+         [cdkDragDisabled]="!auth.isAdmin()"
+         cdkDragBoundary=".manuel-dashboard-body"
+         [style.left.px]="group.depot ? (group.depot.posX || 0) : posIndepX"
+         [style.top.px]="group.depot ? (group.depot.posY || 0) : posIndepY"
+         [style.width.px]="group.depot ? (group.depot.width || 420) : posIndepWidth"
+         [style.height.px]="group.depot ? (group.depot.height || 450) : posIndepHeight"
+         (cdkDragEnded)="onDragEnded($event, group)">
+      
+      <!-- APERÇU PENDANT LE DRAG -->
+      <div class="m-drag-placeholder" *cdkDragPlaceholder></div>
+      
+      <!-- HEADER DU DÉPÔT -->
+      <div class="manuel-depot-header" *ngIf="group.depot" [routerLink]="['/vue-depot', group.depot.id]">
+        <div class="manuel-depot-info">
+          <!-- TRI / POSITION -->
+          <div class="manuel-reorder-btns" *ngIf="filtreActuel === 'TOUT' && auth.isAdmin()" (click)="$event.stopPropagation()">
+            <button (click)="moveDepot(i, -1)" [disabled]="i === 0">▲</button>
+            <button (click)="moveDepot(i, 1)" [disabled]="i === filteredGroupedDepots.length - 1">▼</button>
+          </div>
+
+          <!-- POIGNÉE DE DÉPLACEMENT -->
+          <div class="manuel-drag-handle" cdkDragHandle *ngIf="auth.isAdmin()" (click)="$event.stopPropagation()">✥</div>
+
+          <div class="manuel-depot-titles">
+            <h2 class="manuel-depot-name">{{ group.depot.nom }}</h2>
+            <p class="manuel-depot-loc">🏭 {{ group.depot.localisation }}</p>
+          </div>
+        </div>
+        <div class="manuel-depot-meta">
+          <div class="m-depot-env" *ngIf="group.depot">
+            <span class="m-env-item" title="Température">
+              <i data-lucide="thermometer"></i> 
+              {{ group.depot.temperature != null ? group.depot.temperature : '--' }}°C
+            </span>
+            <span class="m-env-item" title="Humidité">
+              <i data-lucide="droplets"></i> 
+              {{ group.depot.humidity != null ? group.depot.humidity : '--' }}%
+            </span>
+          </div>
+          <span class="manuel-tank-count">{{ group.mesures.length }} citerne(s)</span>
+          <span class="manuel-toggle-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- HEADER POUR INDÉPENDANTS (SANS LIEN) -->
+      <div class="manuel-depot-header" *ngIf="!group.depot">
+        <div class="manuel-depot-info">
+          <div class="manuel-drag-handle" cdkDragHandle *ngIf="auth.isAdmin()">✥</div>
+          <div class="manuel-depot-titles">
+            <h2 class="manuel-depot-name">Citernes indépendantes</h2>
+          </div>
+        </div>
+        <div class="manuel-depot-meta">
+          <span class="manuel-tank-count">{{ group.mesures.length }} citerne(s)</span>
+        </div>
+      </div>
+
+      <!-- NOUVELLE GRILLE MINI-CITERNES (TOUJOURS VISIBLE) -->
+      <div class="manuel-grid-compact" *ngIf="group.mesures.length > 0">
+        <div class="m-mini-tank" 
+             *ngFor="let m of getFilteredMesures(group); trackBy: trackByMesure"
+             [routerLink]="['/historique', m.citerne.id]">
+          
+          <div class="m-mini-tank-name">{{ m.citerne.nom }}</div>
+
+          <div class="m-mini-visual">
+            <!-- DÉTAILS INDUSTRIELS (PIEDS/BOUCHON) -->
+            <div class="m-mini-cap" *ngIf="m.citerne.type !== 'HORIZONTAL'"></div>
+            <div class="m-mini-feet" *ngIf="m.citerne.type === 'HORIZONTAL'">
+              <div class="m-mini-foot"></div>
+              <div class="m-mini-foot"></div>
+            </div>
+
+            <div class="m-mini-frame" [ngClass]="m.citerne.type === 'HORIZONTAL' ? 'horizontal' : 'vertical'">
+              <div class="m-mini-liquid" 
+                   [style.background-color]="getColor(m.pourcentage, m.citerne.produit)"
+                   [style.height.%]="m.pourcentage"
+                   [style.width.%]="100">
+              </div>
+              <span class="m-mini-percent">{{ m.pourcentage | number:'1.0-0' }}%</span>
+              <div class="m-mini-glass"></div>
+            </div>
+          </div>
+
+          <div class="m-mini-stats">
+            <span>{{ (m.citerne.capaciteMax * m.pourcentage / 100) | number:'1.0-0' }} L</span>
+            <div class="m-status-dot" [style.background-color]="getColor(m.pourcentage, m.citerne.produit)"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="manuel-depot-empty" *ngIf="group.mesures.length === 0">
+        <p>Aucune citerne active.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="manuel-empty-state" *ngIf="filteredGroupedDepots.length === 0">
+    <div class="manuel-loader" *ngIf="isLoading"></div>
+    <p>{{ isLoading ? 'Récupération des données capteurs...' : 'Aucune donnée disponible.' }}</p>
+  </div>
+
+  <!-- MODAL AJOUT RAPIDE DÉPÔT -->
+  <div class="manuel-modal-overlay" *ngIf="isAddingDepot">
+    <div class="manuel-modal-card">
+      <div class="manuel-modal-header">
+        <h2>Nouveau Dépôt</h2>
+        <button class="manuel-close-x" (click)="isAddingDepot = false">&times;</button>
+      </div>
+      <div class="manuel-modal-body">
+        <div class="manuel-form-group">
+          <label>Nom du Dépôt</label>
+          <input type="text" [(ngModel)]="newDepot.nom" placeholder="Ex: Dépôt Nord">
+        </div>
+        <div class="manuel-form-group">
+          <label>Localisation</label>
+          <input type="text" [(ngModel)]="newDepot.localisation" placeholder="Ex: Tunis">
+        </div>
+        <div class="manuel-form-group">
+          <label>Produit associé</label>
+          <select [(ngModel)]="newDepot.produit">
+            <option value="Gasoil">Gasoil</option>
+            <option value="Hexane">Hexane</option>
+            <option value="Huile">Huile</option>
+          </select>
+        </div>
+      </div>
+      <div class="manuel-modal-footer">
+        <button class="manuel-btn-cancel" (click)="isAddingDepot = false">Annuler</button>
+        <button class="manuel-btn-save" (click)="quickSaveDepot()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>

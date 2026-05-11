@@ -1,0 +1,80 @@
+<nav class="manuel-navbar">
+  <div class="manuel-nav-container">
+    <div class="manuel-nav-brand" routerLink="/dashboard">
+      <span class="manuel-admin-badge">STTGO</span>
+    </div>
+
+    <div class="manuel-nav-menu">
+      <a routerLink="/dashboard" class="manuel-nav-link">Tableau de Bord</a>
+      <a routerLink="/Citernes" class="manuel-nav-link">Gestion Citernes</a>
+      <a routerLink="/Depots" class="manuel-nav-link">Gestion Dépôts</a>
+      <a routerLink="/Utilisateurs" class="manuel-nav-link" *ngIf="auth.isAdmin()">Utilisateurs</a>
+    </div>
+
+    <div class="manuel-nav-actions">
+      <div class="manuel-user-info">
+        <span class="manuel-user-name" style="margin-right: 15px;">{{ auth.getUserName() }}</span>
+        <button class="manuel-btn-logout" (click)="logout()">Déconnexion</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="manuel-page-container">
+  <div class="header-vue-depot" *ngIf="depot">
+    <div class="title-area">
+      <button class="btn-retour" (click)="retour()">← Retour</button>
+      <div>
+        <h2 class="depot-name">{{ depot.nom }}</h2>
+        <p class="depot-loc">📍 {{ depot.localisation }} | <span class="depot-prod">{{ depot.produit }}</span></p>
+      </div>
+    </div>
+    <div class="depot-meta">
+        <span class="count-badge">{{ mesures.length }} citernes actives</span>
+    </div>
+  </div>
+
+  <div class="manuel-divider"></div>
+
+  <div class="grid-vue-depot" *ngIf="!isLoading && mesures.length > 0">
+    <div class="m-mini-tank" 
+         *ngFor="let m of mesures"
+         [routerLink]="['/historique', m.citerne.id]">
+      
+      <div class="m-mini-tank-name">{{ m.citerne.nom }}</div>
+
+      <div class="m-mini-visual">
+        <!-- DÉTAILS INDUSTRIELS (PIEDS/BOUCHON) -->
+        <div class="m-mini-cap" *ngIf="m.citerne.type !== 'HORIZONTAL'"></div>
+        <div class="m-mini-feet" *ngIf="m.citerne.type === 'HORIZONTAL'">
+          <div class="m-mini-foot"></div>
+          <div class="m-mini-foot"></div>
+        </div>
+
+        <div class="m-mini-frame" [ngClass]="m.citerne.type === 'HORIZONTAL' ? 'horizontal' : 'vertical'">
+          <div class="m-mini-liquid" 
+               [style.background-color]="getColor(m.pourcentage, m.citerne.produit)"
+               [style.height.%]="m.pourcentage"
+               [style.width.%]="100">
+          </div>
+          <span class="m-mini-percent">{{ m.pourcentage | number:'1.0-0' }}%</span>
+          <div class="m-mini-glass"></div>
+        </div>
+      </div>
+
+      <div class="m-mini-stats">
+        <span>{{ (m.citerne.capaciteMax * m.pourcentage / 100) | number:'1.0-0' }} L</span>
+        <div class="m-status-dot" [style.background-color]="getColor(m.pourcentage, m.citerne.produit)"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && mesures.length === 0">
+    <p>Aucune citerne enregistrée dans ce dépôt.</p>
+    <button class="btn-retour" (click)="retour()">Retour au Dashboard</button>
+  </div>
+
+  <div class="loader-area" *ngIf="isLoading">
+    <div class="manuel-loader"></div>
+  </div>
+</div>

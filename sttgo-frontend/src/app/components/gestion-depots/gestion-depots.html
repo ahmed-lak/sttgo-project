@@ -1,0 +1,99 @@
+<nav class="manuel-navbar">
+  <div class="manuel-nav-container">
+    <div class="manuel-nav-brand" routerLink="/dashboard">
+      <span class="manuel-admin-badge">STTGO</span>
+    </div>
+
+    <div class="manuel-nav-menu">
+      <a routerLink="/dashboard" routerLinkActive="manuel-active" class="manuel-nav-link">Tableau de Bord</a>
+      <a routerLink="/Citernes" routerLinkActive="manuel-active" class="manuel-nav-link">Gestion Citernes</a>
+      <a routerLink="/Depots" routerLinkActive="manuel-active" class="manuel-nav-link">Gestion Dépôts</a>
+      <a routerLink="/Utilisateurs" routerLinkActive="manuel-active" class="manuel-nav-link"
+        *ngIf="auth.isAdmin()">Utilisateurs</a>
+    </div>
+
+    <div class="manuel-nav-actions">
+      <div class="manuel-user-info">
+        <span class="manuel-user-name" style="margin-right: 15px;">{{ auth.getUserName() }}</span>
+        <button class="manuel-btn-logout" (click)="logout()">Déconnexion</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="manuel-page-container">
+  <div class="manuel-main-content">
+    <header class="manuel-header-flex">
+      <div class="manuel-header-text">
+        <h2 class="manuel-title-page">Gérer les <span>Dépôts</span></h2>
+        <p class="manuel-subtitle">Localisation et hiérarchisation de vos parcs</p>
+      </div>
+      <button class="manuel-btn-add" (click)="prepareNew()" *ngIf="auth.isAdmin()">
+        + Ajouter un Dépôt
+      </button>
+    </header>
+
+    <div class="manuel-table-wrapper">
+      <table class="manuel-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Localisation</th>
+            <th>Produit Principal</th>
+            <th class="manuel-text-right" *ngIf="auth.isAdmin()">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of depots">
+            <td class="manuel-td-id">#{{ d.id }}</td>
+            <td class="manuel-td-name">{{ d.nom }}</td>
+            <td><span class="manuel-badge-gray">{{ d.localisation }}</span></td>
+            <td><span class="manuel-badge-blue" *ngIf="d.produit">{{ d.produit }}</span></td>
+            <td class="manuel-text-right" *ngIf="auth.isAdmin()">
+              <button class="manuel-action-btn manuel-edit" (click)="editDepot(d)">✎</button>
+              <button class="manuel-action-btn manuel-delete" (click)="deleteDepot(d.id)">✕</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="manuel-modal-overlay" *ngIf="showModal">
+  <div class="manuel-modal-card">
+    <div class="manuel-modal-header">
+      <h3>{{ isEditMode ? 'Modifier' : 'Ajouter' }} un Dépôt</h3>
+      <button class="manuel-close-x" (click)="showModal = false">×</button>
+    </div>
+
+    <div class="manuel-modal-body">
+    <div class="manuel-modal-body">
+      <div class="manuel-form-group">
+        <label>Nom du Dépôt</label>
+        <input type="text" [(ngModel)]="selectedDepot.nom" placeholder="Ex: Dépôt Central">
+      </div>
+
+      <div class="manuel-form-row">
+        <div class="manuel-form-group">
+          <label>Localisation</label>
+          <input type="text" [(ngModel)]="selectedDepot.localisation" placeholder="Ex: Paris, Zone industrielle">
+        </div>
+        <div class="manuel-form-group">
+          <label>Produit Principal</label>
+          <select [(ngModel)]="selectedDepot.produit">
+            <option value="Gasoil">Gasoil</option>
+            <option value="Hexane">Hexane</option>
+            <option value="Huile">Huile</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="manuel-modal-footer">
+      <button class="manuel-btn-cancel" (click)="showModal = false">Annuler</button>
+      <button class="manuel-btn-save" (click)="saveDepot()">Enregistrer</button>
+    </div>
+  </div>
+</div>

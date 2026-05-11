@@ -1,0 +1,74 @@
+/* VUE DEPOT SPECIFIC */
+.grid-vue-depot {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.header-vue-depot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.title-area {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.btn-retour {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--m-text);
+  transition: 0.2s;
+}
+
+.btn-retour:hover {
+  background: var(--m-bg);
+}
+
+.depot-name {
+  font-size: 1.8rem;
+  margin: 0;
+  font-weight: 800;
+  color: var(--m-text);
+}
+
+.depot-loc {
+  margin: 5px 0 0;
+  color: var(--m-text-dim);
+}
+
+.depot-prod {
+  color: var(--m-accent);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.count-badge {
+  background: var(--m-surface);
+  padding: 6px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: var(--m-text-dim);
+  border: 1px solid var(--m-border);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 100px 0;
+  color: var(--m-text-dim);
+}
+
+.loader-area {
+  display: flex;
+  justify-content: center;
+  padding: 100px;
+}

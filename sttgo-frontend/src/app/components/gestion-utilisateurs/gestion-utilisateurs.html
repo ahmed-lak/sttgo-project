@@ -1,0 +1,76 @@
+<nav class="manuel-navbar">
+  <div class="manuel-nav-container">
+    <div class="manuel-nav-brand" routerLink="/dashboard">
+      <span class="manuel-admin-badge">STTGO</span>
+    </div>
+    <div class="manuel-nav-menu">
+      <a routerLink="/dashboard" routerLinkActive="manuel-active" class="manuel-nav-link">Tableau de Bord</a>
+      <a routerLink="/Citernes" routerLinkActive="manuel-active" class="manuel-nav-link">Gestion Citernes</a>
+      <a routerLink="/Depots" routerLinkActive="manuel-active" class="manuel-nav-link">Gestion Dépôts</a>
+      <a routerLink="/Utilisateurs" routerLinkActive="manuel-active" class="manuel-nav-link" *ngIf="auth.isAdmin()">Utilisateurs</a>
+    </div>
+    <div class="manuel-nav-actions">
+      <div class="manuel-user-info">
+        <span class="manuel-user-name" style="margin-right: 15px;">{{ auth.getUserName() }}</span>
+        <button class="manuel-btn-logout" (click)="logout()">Déconnexion</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="manuel-page-container">
+  <header class="manuel-header">
+    <h1 class="manuel-title">Gestion des <span>Utilisateurs</span></h1>
+    <p class="manuel-subtitle">Validation des accès et rôles</p>
+  </header>
+
+  <div class="user-list-card">
+    <div *ngIf="loading" class="loading-state">Chargement...</div>
+    <div *ngIf="error" class="error-msg">{{error}}</div>
+
+    <table class="user-table" *ngIf="!loading && users.length > 0">
+      <thead>
+        <tr>
+          <th>Nom / Prénom</th>
+          <th>Poste</th>
+          <th>Email</th>
+          <th>État</th>
+          <th>Rôle</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of users">
+          <td>
+            <strong>{{ u.nom }} {{ u.prenom }}</strong>
+          </td>
+          <td>{{ u.poste }}</td>
+          <td>{{ u.email }}</td>
+          <td>
+            <span class="status-badge" [class.pending]="!u.enabled" [class.active]="u.enabled">
+              {{ u.enabled ? 'Actif' : 'En attente' }}
+            </span>
+          </td>
+          <td>
+            <span class="role-badge" 
+                  [class.super-admin]="u.role === 'SUPER_ADMIN'"
+                  [class.admin]="u.role === 'ADMIN'">
+              {{ u.role }}
+            </span>
+          </td>
+          <td class="action-cells">
+            <div class="validate-group" *ngIf="!u.enabled">
+              <button class="btn-validate admin" (click)="validateUser(u, 'ADMIN')">Valider ADMIN</button>
+              <button class="btn-validate" (click)="validateUser(u, 'WORKER')">Valider OUVRIER</button>
+            </div>
+            <button class="btn-delete" (click)="deleteUser(u.id)">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="empty-state" *ngIf="!loading && users.length === 0">
+      Aucun utilisateur trouvé.
+    </div>
+  </div>
+</div>
