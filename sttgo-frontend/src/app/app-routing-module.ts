@@ -17,7 +17,8 @@ const routes: Routes = [
   { path: 'Depots', component: GestionDepots },
   { path: 'Utilisateurs', component: GestionUtilisateurs },
   { path: 'vue-depot/:id', component: VueDepot },
-  { path: 'reset-password', component: LoginComponent }
+  { path: 'reset-password', component: LoginComponent },
+  { path: 'register', component: LoginComponent }
 ];
 
 

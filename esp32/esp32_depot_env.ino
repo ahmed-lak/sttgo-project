@@ -95,8 +95,9 @@ void loop() {
     char payload[128];
     serializeJson(doc, payload, sizeof(payload));
 
-    if (mqttClient.publish(MQTT_TOPIC, payload)) {
-      Serial.print("Published: ");
+    // Utilisation de 'retained = true' pour la persistance des données environnementales
+    if (mqttClient.publish(MQTT_TOPIC, payload, true)) {
+      Serial.print("Published (retained): ");
       Serial.println(payload);
     }
   }

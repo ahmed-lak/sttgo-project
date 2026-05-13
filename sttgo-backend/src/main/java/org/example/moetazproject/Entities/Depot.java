@@ -21,6 +21,10 @@ public class Depot {
 
     private Double temperature;
     private Double humidity;
+    private boolean alerteTemp = false;
+
+    public boolean isAlerteTemp() { return alerteTemp; }
+    public void setAlerteTemp(boolean alerteTemp) { this.alerteTemp = alerteTemp; }
 
     public Double getTemperature() { return temperature; }
     public void setTemperature(Double temperature) { this.temperature = temperature; }

@@ -1,6 +1,8 @@
 package org.example.moetazproject.Controllers;
 
+import org.example.moetazproject.Entities.Invitation;
 import org.example.moetazproject.Entities.User;
+import org.example.moetazproject.Repositories.InvitationRepository;
 import org.example.moetazproject.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.time.LocalDateTime;
 import org.example.moetazproject.Services.EmailService;
 
 @RestController
@@ -27,25 +30,64 @@ public class AuthController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private InvitationRepository invitationRepository;
+
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-        if (user.getEmail() == null || user.getEmail().isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Email is required"));
+    public ResponseEntity<?> register(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        String password = request.get("password");
+        String nom = request.get("nom");
+        String prenom = request.get("prenom");
+        String poste = request.get("poste");
+
+        if (token == null || token.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Un jeton d'invitation est requis pour s'inscrire."));
         }
-        
-        // On utilise l'email comme nom d'utilisateur unique
-        user.setUsername(user.getEmail());
-        
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "A user with this email already exists"));
+
+        Optional<Invitation> invitationOpt = invitationRepository.findByToken(token);
+        if (invitationOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Jeton d'invitation invalide."));
         }
+
+        Invitation invitation = invitationOpt.get();
+        if (invitation.isUsed()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Ce jeton d'invitation a déjà été utilisé."));
+        }
+
+        if (invitation.getExpiryDate().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Ce jeton d'invitation a expiré."));
+        }
+
+        // Vérifier si l'utilisateur existe déjà (sécurité supplémentaire)
+        if (userRepository.findByEmail(invitation.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Un compte avec cet email existe déjà."));
+        }
+
+        User user = new User();
+        user.setEmail(invitation.getEmail());
+        user.setUsername(invitation.getEmail());
+        user.setPassword(passwordEncoder.encode(password));
+        user.setNom(nom);
+        user.setPrenom(prenom);
+        user.setPoste(poste);
         
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole("WORKER");
-        user.setEnabled(false); // Doit être validé par un admin
+        // Utiliser le rôle spécifié dans l'invitation, sinon WORKER par défaut
+        String role = invitation.getRole();
+        if (role == null || role.isEmpty()) {
+            role = "WORKER";
+        }
+        user.setRole(role);
+        
+        user.setEnabled(true); // Puisqu'il est invité, on peut l'activer directement
+        
         userRepository.save(user);
+
+        // Marquer l'invitation comme utilisée
+        invitation.setUsed(true);
+        invitationRepository.save(invitation);
         
-        return ResponseEntity.ok(Map.of("status", "success", "message", "User registered, waiting for admin validation."));
+        return ResponseEntity.ok(Map.of("status", "success", "message", "Compte créé avec succès."));
     }
 
     @RequestMapping(value = "/login", method = {RequestMethod.GET, RequestMethod.POST})

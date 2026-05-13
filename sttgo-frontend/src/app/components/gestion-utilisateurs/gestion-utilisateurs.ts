@@ -12,12 +12,40 @@ export class GestionUtilisateurs implements OnInit {
   users: any[] = [];
   loading = true;
   error = '';
+  inviteEmail = '';
+  inviteRole = 'WORKER';
+  inviteLoading = false;
+  inviteMessage = '';
 
   constructor(
     public auth: AuthService, 
     private http: HttpClient,
     private cdr: ChangeDetectorRef
   ) {}
+
+  onInvite() {
+    if (!this.inviteEmail) return;
+    this.inviteLoading = true;
+    this.inviteMessage = '';
+
+    this.http.post('/api/admin/users/invite', { 
+      email: this.inviteEmail, 
+      role: this.inviteRole 
+    }, {
+      headers: this.auth.getHeaders()
+    }).subscribe({
+      next: (res: any) => {
+        this.inviteLoading = false;
+        this.inviteMessage = "✅ " + res.message;
+        this.inviteEmail = '';
+        setTimeout(() => this.inviteMessage = '', 5000);
+      },
+      error: (err: any) => {
+        this.inviteLoading = false;
+        this.inviteMessage = "❌ " + (err.error?.error || "Erreur lors de l'invitation.");
+      }
+    });
+  }
 
   ngOnInit() {
     this.loadUsers();

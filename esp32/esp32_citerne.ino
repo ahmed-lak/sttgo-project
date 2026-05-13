@@ -139,8 +139,8 @@ void connecterMQTT() {
       
       // S'abonner au topic de statut de CETTE citerne
       String statusTopic = "citerne/" + String(CITERNE_ID) + "/status";
-      mqttClient.subscribe(statusTopic.c_str());
-      Serial.print("Abonne a : ");
+      mqttClient.subscribe(statusTopic.c_str(), 1); // QoS 1
+      Serial.print("Abonne avec QoS 1 a : ");
       Serial.println(statusTopic);
     } else {
       Serial.print(" Echec, code erreur = ");
@@ -183,8 +183,9 @@ void publierMesure(float distanceCM) {
   char payload[128];
   serializeJson(doc, payload, sizeof(payload));
 
-  if (mqttClient.publish(MQTT_TOPIC, payload)) {
-    Serial.print("MQTT publie : ");
+  // Publier avec 'retained = true' pour que le dernier niveau soit toujours disponible
+  if (mqttClient.publish(MQTT_TOPIC, payload, true)) {
+    Serial.print("MQTT publie (retained) : ");
     Serial.println(payload);
   } else {
     Serial.println("Echec de publication MQTT");

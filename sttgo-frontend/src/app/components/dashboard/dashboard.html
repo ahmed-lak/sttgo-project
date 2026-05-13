@@ -84,6 +84,26 @@
     </div>
 
     <div class="manuel-divider"></div>
+
+    <!-- BANNIÈRE D'ALERTE TEMPÉRATURE CRITIQUE (Design Professionnel) -->
+    <div class="temp-alert-banner" *ngIf="hasTempAlert()">
+      <div class="alert-icon-container">
+        <i data-lucide="alert-triangle"></i>
+      </div>
+      <div class="alert-content">
+        <div class="alert-header">
+          <span class="alert-title">Alerte de Sécurité : Température Critique Détectée</span>
+          <span class="alert-subtitle">Seuil de sécurité (45°C) dépassé dans les dépôts suivants :</span>
+        </div>
+        <div class="alert-depots-list">
+          <div *ngFor="let d of getDepotsWithAlert()" class="alert-depot-tag">
+            <span class="depot-dot"></span>
+            <span class="depot-name">{{ d.nom }}</span>
+            <span class="depot-value">{{ d.temperature }}°C</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </header>
 
   <div class="manuel-dashboard-body" *ngIf="filteredGroupedDepots.length > 0">
@@ -120,7 +140,7 @@
         </div>
         <div class="manuel-depot-meta">
           <div class="m-depot-env" *ngIf="group.depot">
-            <span class="m-env-item" title="Température">
+            <span class="m-env-item" title="Température" [class.critical-temp]="group.depot.alerteTemp">
               <i data-lucide="thermometer"></i> 
               {{ group.depot.temperature != null ? group.depot.temperature : '--' }}°C
             </span>
@@ -151,11 +171,17 @@
       <div class="manuel-grid-compact" *ngIf="group.mesures.length > 0">
         <div class="m-mini-tank" 
              *ngFor="let m of getFilteredMesures(group); trackBy: trackByMesure"
-             [routerLink]="['/historique', m.citerne.id]">
+             [routerLink]="['/historique', m.citerne.id]"
+             [class.is-offline]="isOffline(m.dateMesure)">
           
-          <div class="m-mini-tank-name">{{ m.citerne.nom }}</div>
+          <div class="m-mini-tank-name">
+            {{ m.citerne.nom }}
+            <!-- Badge Statut Professionnel -->
+            <span class="m-offline-badge" *ngIf="isOffline(m.dateMesure)">Signal Perdu</span>
+          </div>
 
           <div class="m-mini-visual">
+            <!-- ... (Reste du code visuel) ... -->
             <!-- DÉTAILS INDUSTRIELS (PIEDS/BOUCHON) -->
             <div class="m-mini-cap" *ngIf="m.citerne.type !== 'HORIZONTAL'"></div>
             <div class="m-mini-feet" *ngIf="m.citerne.type === 'HORIZONTAL'">

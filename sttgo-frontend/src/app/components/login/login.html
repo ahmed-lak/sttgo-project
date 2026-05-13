@@ -24,9 +24,12 @@
 
       <button (click)="onLogin()" class="btn-login">Accéder au Dashboard</button>
       
+      <!-- L'inscription publique est désactivée (Invitation requise) -->
+      <!--
       <p class="switch-mode">
         Pas encore de compte ? <a (click)="toggleMode()">S'inscrire</a>
       </p>
+      -->
     </ng-container>
 
     <!-- MODE INSCRIPTION -->
@@ -42,9 +45,11 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label>Email professionnel</label>
-        <input type="email" [(ngModel)]="regData.email" class="custom-input" placeholder="exemple@sttgo.com">
+      <div class="form-group" *ngIf="invitationToken">
+        <label>Email (Lié à votre invitation)</label>
+        <p style="font-size: 0.9rem; color: #666; background: #f0f0f0; padding: 10px; border-radius: 4px;">
+          Votre compte sera lié à l'email utilisé pour l'invitation.
+        </p>
       </div>
 
       <div class="form-group">

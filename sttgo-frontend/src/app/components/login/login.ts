@@ -14,18 +14,30 @@ export class LoginComponent implements OnInit {
   isForgotMode = false;
   isResetMode = false;
   isSuccess = false;
-  regData = { email: '', nom: '', prenom: '', poste: '', password: '' };
+  regData = { nom: '', prenom: '', poste: '', password: '' };
   forgotEmail = '';
   resetToken = '';
+  invitationToken = '';
   newPassword = '';
 
   constructor(private auth: AuthService, private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
-      if (params['token']) {
-        this.resetToken = params['token'];
-        this.isResetMode = true;
+      const token = params['token'];
+      if (token) {
+        // On essaie de déterminer si c'est une invitation ou un reset
+        // Dans une vraie app, on pourrait avoir des paramètres différents (ex: ?invite=xxx ou ?reset=xxx)
+        // Ici on va basculer selon le mode détecté par l'URL ou simplement tenter le reset par défaut
+        // MAIS si on arrive sur /register avec un token, c'est une invitation.
+        
+        if (this.router.url.includes('/register')) {
+          this.invitationToken = token;
+          this.isRegisterMode = true;
+        } else {
+          this.resetToken = token;
+          this.isResetMode = true;
+        }
       }
     });
   }
@@ -58,20 +70,28 @@ export class LoginComponent implements OnInit {
   }
 
   onRegister() {
-    if (!this.regData.email || !this.regData.password || !this.regData.nom) {
+    if (!this.invitationToken) {
+      this.error = "Un jeton d'invitation est requis pour s'inscrire.";
+      return;
+    }
+
+    if (!this.regData.password || !this.regData.nom) {
       this.error = "Veuillez remplir tous les champs obligatoires.";
       return;
     }
 
-    this.auth.register(this.regData).subscribe({
+    const payload = { ...this.regData, token: this.invitationToken };
+
+    this.auth.register(payload).subscribe({
       next: (res: any) => {
         this.isSuccess = true;
-        this.error = "Demande envoyée ! Un administrateur doit valider votre compte.";
+        this.error = "Compte créé avec succès ! Vous pouvez maintenant vous connecter.";
         this.isRegisterMode = false;
         // Reset form
-        this.regData = { email: '', nom: '', prenom: '', poste: '', password: '' };
+        this.regData = { nom: '', prenom: '', poste: '', password: '' };
+        this.invitationToken = '';
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isSuccess = false;
         this.error = err.error?.error || "Erreur lors de l'inscription.";
       }

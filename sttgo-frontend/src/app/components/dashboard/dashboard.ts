@@ -52,6 +52,11 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
 
   collapsedDepotIds: Set<number> = new Set();
 
+  /**
+   * CONSTRUCTEUR : C'est ici qu'on injecte les services.
+   * On demande à Angular de nous fournir les outils pour parler au Backend (SurveillanceService)
+   * et pour gérer l'authentification (AuthService).
+   */
   constructor(
     private surveillanceService: SurveillanceService,
     private router: Router,
@@ -59,13 +64,21 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
     public auth: AuthService
   ) {}
 
+  /**
+   * ngOnInit : Cette méthode s'exécute UNE FOIS quand le composant s'affiche.
+   * C'est le moment idéal pour charger les données initiales.
+   */
   ngOnInit(): void {
+    // Étape 1 : On vérifie si l'utilisateur est connecté. Sinon, retour au login.
     if (!localStorage.getItem('credentials')) {
       this.router.navigate(['/login']);
       return;
     }
     
+    // Étape 2 : On charge les premières données
     this.chargerDonnees();
+
+    // ... (Logique de chargement des positions sauvegardées) ...
 
     // Charger la position des indépendants depuis le navigateur
     const savedX = localStorage.getItem('sttgo_indep_x');
@@ -78,7 +91,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
     if (savedH) this.posIndepHeight = parseInt(savedH, 10);
 
     // Initialiser le débounce pour la sauvegarde des dimensions
-    this.resizeSubject.pipe(debounceTime(1000)).subscribe(group => {
+    this.resizeSubject.pipe(debounceTime(1000)).subscribe((group: GroupedDepot) => {
       if (group.depot) {
         this.surveillanceService.saveDepot(group.depot).subscribe({
           next: () => {
@@ -117,7 +130,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
 
     this.resizeObserver = new ResizeObserver(entries => {
       for (const entry of entries) {
-        const index = this.depotSections.toArray().findIndex(el => el.nativeElement === entry.target);
+        const index = this.depotSections.toArray().findIndex((el: ElementRef) => el.nativeElement === entry.target);
         if (index !== -1) {
           const group = this.filteredGroupedDepots[index];
           const newWidth = Math.round((entry.target as HTMLElement).offsetWidth);
@@ -143,31 +156,35 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    this.depotSections.forEach(el => this.resizeObserver?.observe(el.nativeElement));
+    this.depotSections.forEach((el: ElementRef) => this.resizeObserver?.observe(el.nativeElement));
   }
 
 
 
 
+  /**
+   * chargerDonnees : C'est le coeur du dashboard.
+   * Elle appelle le Backend pour récupérer : les mesures, les dépôts et les citernes.
+   */
   chargerDonnees() {
     forkJoin({
       mesures: this.surveillanceService.getNiveauxActuels(),
       depots: this.surveillanceService.getDepots(),
       toutesCiternes: this.surveillanceService.getCiternes()
     }).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         const data = res.mesures;
         const allDepots = res.depots;
         const citernes = res.toutesCiternes;
         
-        this.mesures = data.sort((a, b) => a.citerne.nom.localeCompare(b.citerne.nom));
+        this.mesures = data.sort((a: Mesure, b: Mesure) => a.citerne.nom.localeCompare(b.citerne.nom));
         
         // Liste restreinte aux produits demandés par l'utilisateur
         const produitsStandards = ['Gasoil', 'Hexane', 'Huile'];
         
         // On fusionne avec ce qui existe en base pour ne rien perdre
-        const productsFromCisterns = citernes.map(c => c.produit);
-        const productsFromMeasures = data.map(m => m.citerne.produit);
+        const productsFromCisterns = citernes.map((c: any) => c.produit);
+        const productsFromMeasures = data.map((m: Mesure) => m.citerne.produit);
         
         this.produitsDisponibles = Array.from(new Set([
           ...produitsStandards,
@@ -180,8 +197,8 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
         // 1. Créer les groupes (tous)
         const groups: GroupedDepot[] = [];
         allDepots
-          .sort((a,b) => (a.ordre || 0) - (b.ordre || 0))
-          .forEach(d => {
+          .sort((a: Depot, b: Depot) => (a.ordre || 0) - (b.ordre || 0))
+          .forEach((d: Depot) => {
             const mesuresDuDepot = this.mesures.filter(m => m.citerne.depot && m.citerne.depot.id === d.id);
             
             // SI on a des changements locaux non sauvés, on garde la position/taille locale
@@ -226,7 +243,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
           if ((window as any).lucide) (window as any).lucide.createIcons();
         }, 100);
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Erreur:', err);
         this.isLoading = false;
       },
@@ -241,6 +258,16 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
         depot: m.citerne.depot ? m.citerne.depot.nom : 'Sans dépôt',
         pourcentage: m.pourcentage
       }));
+  }
+
+  hasTempAlert(): boolean {
+    return this.groupedDepots.some(g => g.depot && g.depot.alerteTemp);
+  }
+
+  getDepotsWithAlert(): Depot[] {
+    return this.groupedDepots
+      .filter(g => g.depot && g.depot.alerteTemp)
+      .map(g => g.depot!);
   }
 
   dismissAlertes() {
@@ -370,7 +397,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
         alert("Carte sauvegardée avec succès !");
         this.chargerDonnees();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isLoading = false;
         console.error("Erreur sauvegarde carte", err);
         alert("Erreur lors de la sauvegarde.");
@@ -427,6 +454,21 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
     if (p > 90) return 'status-critical';
     if (p < 15) return 'status-low';
     return 'status-normal';
+  }
+
+  /**
+   * isOffline : Vérifie si la citerne n'a pas envoyé de données depuis trop longtemps.
+   * Seuil par défaut : 12 heures (pour correspondre aux 3 relèves par jour).
+   */
+  isOffline(dateStr: string | undefined): boolean {
+    if (!dateStr) return true;
+    const lastSeen = new Date(dateStr).getTime();
+    const now = new Date().getTime();
+    
+    // Calcul de la différence en heures
+    const diffInHours = (now - lastSeen) / (1000 * 60 * 60);
+    
+    return diffInHours > 12; // Retourne vrai si plus de 12h d'inactivité
   }
 
   trackByDepot(index: number, group: GroupedDepot): any {

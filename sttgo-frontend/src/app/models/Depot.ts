@@ -10,4 +10,5 @@ export interface Depot {
   height?: number;
   temperature?: number;
   humidity?: number;
+  alerteTemp?: boolean;
 }

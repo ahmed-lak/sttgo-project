@@ -24,6 +24,27 @@
     <p class="manuel-subtitle">Validation des accès et rôles</p>
   </header>
 
+  <!-- Section Invitation -->
+  <div class="invite-card">
+    <h3>Inviter un nouvel utilisateur</h3>
+    <p>L'utilisateur recevra un lien d'inscription par email.</p>
+    <div class="invite-form">
+      <input type="email" [(ngModel)]="inviteEmail" placeholder="Email de l'utilisateur" class="invite-input">
+      
+      <select [(ngModel)]="inviteRole" class="invite-select">
+        <option value="WORKER">Ouvrier (Worker)</option>
+        <option value="ADMIN">Administrateur (Admin)</option>
+      </select>
+
+      <button class="btn-invite" (click)="onInvite()" [disabled]="inviteLoading || !inviteEmail">
+        {{ inviteLoading ? 'Envoi...' : 'Envoyer l\'invitation' }}
+      </button>
+    </div>
+    <div *ngIf="inviteMessage" class="invite-status">
+      {{ inviteMessage }}
+    </div>
+  </div>
+
   <div class="user-list-card">
     <div *ngIf="loading" class="loading-state">Chargement...</div>
     <div *ngIf="error" class="error-msg">{{error}}</div>

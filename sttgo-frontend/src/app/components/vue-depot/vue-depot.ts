@@ -43,19 +43,22 @@ export class VueDepot implements OnInit, OnDestroy {
       toutesMesures: this.surveillanceService.getNiveauxActuels(),
       tousDepots: this.surveillanceService.getDepots()
     }).subscribe({
-      next: (res) => {
-        this.depot = res.tousDepots.find(d => d.id === this.depotId) || null;
+      next: (res: any) => {
+        this.depot = res.tousDepots.find((d: Depot) => d.id === this.depotId) || null;
         if (!this.depot) {
           this.isLoading = false;
           return;
         }
         
         // On filtre les mesures pour ce dépôt spécifique
-        this.mesures = res.toutesMesures.filter(m => m.citerne.depot && m.citerne.depot.id === this.depotId);
+        this.mesures = res.toutesMesures.filter((m: Mesure) => m.citerne.depot && m.citerne.depot.id === this.depotId);
         this.isLoading = false;
         this.cdr.detectChanges();
+        
+        // Rafraîchir les icônes Lucide
+        setTimeout(() => { if ((window as any).lucide) (window as any).lucide.createIcons(); }, 100);
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error("Erreur chargement VueDepot", err);
         this.isLoading = false;
       }
@@ -81,6 +84,18 @@ export class VueDepot implements OnInit, OnDestroy {
 
   retour() {
     this.router.navigate(['/dashboard']);
+  }
+
+  /**
+   * isOffline : Vérifie si la citerne n'a pas envoyé de données depuis trop longtemps.
+   * Seuil par défaut : 12 heures.
+   */
+  isOffline(dateStr: string | undefined): boolean {
+    if (!dateStr) return true;
+    const lastSeen = new Date(dateStr).getTime();
+    const now = new Date().getTime();
+    const diffInHours = (now - lastSeen) / (1000 * 60 * 60);
+    return diffInHours > 12;
   }
 
   logout() {

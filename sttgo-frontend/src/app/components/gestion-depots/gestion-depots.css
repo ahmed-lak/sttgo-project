@@ -63,8 +63,27 @@
 .manuel-td-name { font-weight: 600; color: var(--m-text); }
 .manuel-td-cap { font-weight: bold; color: var(--m-text); }
 
-.manuel-badge-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; }
-.manuel-badge-gray { background: rgba(148, 163, 184, 0.1); color: #94a3b8; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; }
+.manuel-badge-blue { 
+  background: rgba(59, 130, 246, 0.05); 
+  color: #2563eb; 
+  padding: 4px 12px; 
+  border-radius: 6px; 
+  font-size: 0.8rem; 
+  border: 1px solid #bfdbfe;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.manuel-badge-gray { 
+  background: #f8fafc; 
+  color: #475569; 
+  padding: 4px 12px; 
+  border-radius: 6px; 
+  font-size: 0.8rem; 
+  border: 1px solid #cbd5e1;
+  font-weight: 600;
+  display: inline-block;
+}
 
 .manuel-dim-pill {
   font-size: 0.75rem;

@@ -1,9 +1,30 @@
-/* VUE DEPOT SPECIFIC */
-.grid-vue-depot {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 20px;
-  padding: 20px 0;
+.m-mini-tank-name {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #1e293b;
+  text-align: center;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.m-offline-icon {
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  animation: offline-pulse 2s infinite;
+}
+
+.m-offline-icon i {
+  width: 14px;
+  height: 14px;
+}
+
+@keyframes offline-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.7; }
 }
 
 .header-vue-depot {
@@ -59,6 +80,52 @@
   font-size: 0.9rem;
   color: var(--m-text-dim);
   border: 1px solid var(--m-border);
+}
+
+/* ENVIRONNEMENT (TEMP/HUM) */
+.depot-environment {
+  display: flex;
+  gap: 12px;
+  background: #f8fafc;
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--m-border);
+}
+
+.env-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.env-pill i {
+  width: 18px;
+  height: 18px;
+}
+
+.env-pill.temp {
+  color: #ef4444;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.1);
+}
+
+.env-pill.temp.critical {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  animation: pulse-alert 2s infinite;
+}
+
+.env-pill.hum {
+  color: #0f172a;
+}
+
+@keyframes pulse-alert {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
 .empty-state {
