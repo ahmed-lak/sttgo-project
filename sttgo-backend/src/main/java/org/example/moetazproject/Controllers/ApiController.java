@@ -52,16 +52,15 @@ public class ApiController {
             return ResponseEntity.ok(Map.of("jour", 0, "semaine", 0, "mois", 0, "annee", 0, "total", 0));
         }
 
-        double volumeActuel = historique.get(0).getVolume();
         LocalDateTime maintenant = LocalDateTime.now();
 
-        double consoJour = calculerConsoDepuis(historique, maintenant.minusHours(24), volumeActuel);
-        double consoSemaine = calculerConsoDepuis(historique, maintenant.minusDays(7), volumeActuel);
-        double consoMois = calculerConsoDepuis(historique, maintenant.minusDays(30), volumeActuel);
-        double consoAnnee = calculerConsoDepuis(historique, maintenant.minusYears(1), volumeActuel);
+        double consoJour = calculerSommeConsommations(historique, maintenant.minusHours(24));
+        double consoSemaine = calculerSommeConsommations(historique, maintenant.minusDays(7));
+        double consoMois = calculerSommeConsommations(historique, maintenant.minusDays(30));
+        double consoAnnee = calculerSommeConsommations(historique, maintenant.minusYears(1));
         
-        // Consommation Totale : On compare la première mesure jamais enregistrée au volume actuel
-        double consoTotale = historique.get(historique.size() - 1).getVolume() - volumeActuel;
+        // Consommation Totale : On cumule tout l'historique disponible
+        double consoTotale = calculerSommeConsommations(historique, LocalDateTime.of(2000, 1, 1, 0, 0));
 
         return ResponseEntity.ok(Map.of(
                 "jour", Math.max(0, consoJour),
@@ -71,7 +70,6 @@ public class ApiController {
                 "total", Math.max(0, consoTotale)));
     }
 
-    // NOUVEAU : Consommation sur une plage de dates (Calendrier)
     @GetMapping("/consommation-range/{id}")
     public ResponseEntity<?> getConsommationRange(
             @PathVariable Long id,
@@ -85,14 +83,11 @@ public class ApiController {
         
         if (mesures.isEmpty()) return ResponseEntity.ok(Map.of("conso", 0));
 
-        // On prend la plus ancienne et la plus récente de CETTE période
-        double volDebut = mesures.get(mesures.size() - 1).getVolume();
-        double volFin = mesures.get(0).getVolume();
+        double conso = calculerSommeConsommations(mesures, dateStart);
         
-        return ResponseEntity.ok(Map.of("conso", Math.max(0, volDebut - volFin)));
+        return ResponseEntity.ok(Map.of("conso", Math.max(0, conso)));
     }
 
-    // NOUVEAU : Historique sur une plage de dates pour le Graphique
     @GetMapping("/historique-range/{id}")
     public List<Mesure> getHistoriqueRange(
             @PathVariable Long id,
@@ -105,24 +100,22 @@ public class ApiController {
         return mesureRepo.findByCiterneIdAndDateMesureBetweenOrderByDateMesureDesc(id, dateStart, dateEnd);
     }
 
-    private double calculerConsoDepuis(List<Mesure> historique, LocalDateTime limite, double volActuel) {
-        // On cherche la mesure la plus PROCHE de la limite (ex: il y a 24h)
-        Mesure reference = historique.stream()
-                .filter(m -> m.getDateMesure().isBefore(limite)) // Trouver les mesures d'avant la limite
-                .findFirst() // Le premier trouvé est le plus proche de la limite (trié DESC)
-                .orElse(null);
+    private double calculerSommeConsommations(List<Mesure> historique, LocalDateTime limite) {
+        double totalConso = 0;
+        for (int i = 0; i < historique.size() - 1; i++) {
+            Mesure mRecente = historique.get(i);
+            Mesure mAncienne = historique.get(i + 1);
 
-        // Si on n'a pas encore assez d'historique (ex: le système tourne depuis seulement 2h)
-        // on prend la toute première mesure jamais enregistrée comme point de départ
-        if (reference == null && !historique.isEmpty()) {
-            reference = historique.get(historique.size() - 1);
+            if (mRecente.getDateMesure().isAfter(limite)) {
+                double difference = mAncienne.getVolume() - mRecente.getVolume();
+                if (difference > 0) {
+                    totalConso += difference;
+                }
+            } else {
+                break;
+            }
         }
-
-        if (reference != null) {
-            return reference.getVolume() - volActuel;
-        }
-
-        return 0.0;
+        return Math.round(totalConso * 100.0) / 100.0;
     }
 
     // 3. DASHBOARD (GET) - Derniers niveaux de toutes les citernes

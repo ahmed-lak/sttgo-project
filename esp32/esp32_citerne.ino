@@ -40,7 +40,7 @@ const char* WIFI_SSID     = "iPhone";        // ← Remplacez par votre SSID Wi-
 const char* WIFI_PASSWORD = "12344444"; // ← Remplacez par votre mot de passe
 
 // --- MQTT ---
-const char* MQTT_BROKER   = "172.20.10.2";      // ← IP du PC qui exécute le broker Mosquitto
+const char* MQTT_BROKER   = "172.20.10.3";      // ← IP du PC qui exécute le broker Mosquitto
 const int   MQTT_PORT     = 1883;
 const char* MQTT_TOPIC    = "citerne/mesure";      // Doit correspondre au backend (application.properties)
 const char* MQTT_CLIENT_ID = "ESP32_Citerne";
@@ -50,7 +50,7 @@ const long  CITERNE_ID = 1;  // ← L'ID de la citerne dans la base MySQL (seule
 
 // --- Capteur ultrason HC-SR04 ---
 const int TRIG_PIN = 26;
-const int ECHO_PIN = 25;
+const int ECHO_PIN = 33;
 
 // --- LEDs ---
 const int RED_LED_PIN    = 27;

@@ -14,10 +14,10 @@ login(email: string, password: string) {
 
   return this.http.post<any>(`${this.apiUrl}/auth/login`, {}, { headers }).pipe(
     tap((res) => {
-      localStorage.setItem('credentials', token);
-      localStorage.setItem('user_role', res.role);
-      localStorage.setItem('user_name', res.nom + ' ' + res.prenom);
-      localStorage.setItem('user_email', res.username);
+      sessionStorage.setItem('credentials', token);
+      sessionStorage.setItem('user_role', res.role);
+      sessionStorage.setItem('user_name', res.nom + ' ' + res.prenom);
+      sessionStorage.setItem('user_email', res.username);
     })
   );
 }
@@ -27,22 +27,22 @@ register(userData: any) {
 }
 
   isAdmin(): boolean {
-    const role = localStorage.getItem('user_role');
-    const email = localStorage.getItem('user_email');
+    const role = sessionStorage.getItem('user_role');
+    const email = sessionStorage.getItem('user_email');
     // Sécurité supplémentaire : l'email admin@sttgo.com est toujours admin
     return role === 'ADMIN' || role === 'SUPER_ADMIN' || email === 'admin@sttgo.com';
   }
 
 getUserName(): string {
-  return localStorage.getItem('user_name') || 'Utilisateur';
+  return sessionStorage.getItem('user_name') || 'Utilisateur';
 }
   getHeaders() {
-    const creds = localStorage.getItem('credentials');
+    const creds = sessionStorage.getItem('credentials');
     return new HttpHeaders().set('Authorization', 'Basic ' + creds);
   }
 
   logout() {
-    localStorage.clear();
+    sessionStorage.clear();
   }
 
   forgotPassword(email: string) {

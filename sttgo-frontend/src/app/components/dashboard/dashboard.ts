@@ -70,7 +70,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
    */
   ngOnInit(): void {
     // Étape 1 : On vérifie si l'utilisateur est connecté. Sinon, retour au login.
-    if (!localStorage.getItem('credentials')) {
+    if (!sessionStorage.getItem('credentials')) {
       this.router.navigate(['/login']);
       return;
     }
@@ -252,7 +252,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
 
   verifierAlertes() {
     this.alertesCiternes = this.mesures
-      .filter(m => m.pourcentage === 0) // Uniquement les citernes totalement vides
+      .filter(m => m.pourcentage <= 20) // Seuil d'alerte à 20% ou moins
       .map(m => ({
         nom: m.citerne.nom,
         depot: m.citerne.depot ? m.citerne.depot.nom : 'Sans dépôt',

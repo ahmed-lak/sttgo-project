@@ -3,6 +3,7 @@ import { Chart, registerables } from 'chart.js';
 import { SurveillanceService } from '../../Services/surveillance';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../Services/auth';
+import { Mesure } from '../../models/Mesure';
 
 Chart.register(...registerables);
 
@@ -22,6 +23,8 @@ export class Historique implements OnInit, OnDestroy {
   
   // Stats de consommation
   stats: any = { jour: 0, semaine: 0, mois: 0, annee: 0, total: 0, range: 0 };
+
+  intervalId: any;
 
   // Filtrage par calendrier
   dateDebut: string = '';
@@ -49,12 +52,20 @@ export class Historique implements OnInit, OnDestroy {
     this.dateDebut = lastWeek.toISOString().split('T')[0];
 
     this.chargerDonnees();
+
+    // Rafraîchir les données toutes les 10 secondes
+    this.intervalId = setInterval(() => {
+      // On ne rafraîchit pas automatiquement si l'utilisateur est en train de filtrer une période précise
+      if (!this.isFiltering) {
+        this.chargerDonnees();
+      }
+    }, 10000);
   }
 
   chargerDonnees() {
     this.isLoading = true;
     this.surveillanceService.getHistorique(this.citerneId).subscribe({
-      next: (data) => {
+      next: (data: Mesure[]) => {
         this.isLoading = false;
         if (data && data.length > 0) {
           this.cdr.detectChanges(); 
@@ -65,7 +76,7 @@ export class Historique implements OnInit, OnDestroy {
     });
 
     this.surveillanceService.getConsommation(this.citerneId).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.stats = { ...this.stats, ...res };
         this.cdr.detectChanges();
       }
@@ -82,7 +93,7 @@ export class Historique implements OnInit, OnDestroy {
 
     // 1. Charger la consommation de la période
     this.surveillanceService.getConsommationRange(this.citerneId, start, end).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.stats.range = res.conso;
         this.cdr.detectChanges();
       }
@@ -90,16 +101,24 @@ export class Historique implements OnInit, OnDestroy {
 
     // 2. Mettre à jour le graphique pour la période
     this.surveillanceService.getHistoriqueRange(this.citerneId, start, end).subscribe({
-      next: (data) => {
+      next: (data: Mesure[]) => {
         this.isFiltering = false;
         if (data && data.length > 0) {
           this.creerGraphique(data);
         } else {
-          // Si pas de données, on reset le graph ou on garde l'ancien
+          // Si pas de données, on vide le graphique pour ne pas induire en erreur
+          if (this.chart) {
+            this.chart.destroy();
+            this.chart = null;
+          }
+          alert("Aucune donnée trouvée pour cette période.");
         }
         this.cdr.detectChanges();
       },
-      error: () => this.isFiltering = false
+      error: () => {
+        this.isFiltering = false;
+        alert("Erreur lors de la récupération des données.");
+      }
     });
   }
 
@@ -112,36 +131,45 @@ export class Historique implements OnInit, OnDestroy {
     });
     const volumes = sortedData.map(m => m.volume);
 
-    if (this.chart) this.chart.destroy();
-    if (!this.chartCanvas) return;
-
-    this.chart = new Chart(this.chartCanvas.nativeElement, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Volume (L)',
-          data: volumes,
-          borderColor: '#3b82f6',
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          borderWidth: 3,
-          fill: true,
-          tension: 0.4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-          x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+    if (this.chart) {
+      // Mise à jour fluide du graphique existant
+      this.chart.data.labels = labels;
+      this.chart.data.datasets[0].data = volumes;
+      this.chart.update('none'); // 'none' pour éviter les animations trop brusques à chaque refresh
+    } else {
+      // Premier rendu du graphique
+      if (!this.chartCanvas) return;
+      this.chart = new Chart(this.chartCanvas.nativeElement, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Volume (L)',
+            data: volumes,
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4
+          }]
         },
-        plugins: { legend: { display: false } }
-      }
-    });
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+            x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
   }
 
   retour() { this.router.navigate(['/dashboard']); }
   logout() { this.auth.logout(); this.router.navigate(['/login']); }
-  ngOnDestroy() { if (this.chart) this.chart.destroy(); }
+  ngOnDestroy() { 
+    if (this.intervalId) clearInterval(this.intervalId);
+    if (this.chart) this.chart.destroy(); 
+  }
 }

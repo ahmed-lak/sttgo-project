@@ -23,6 +23,7 @@ export class LoginComponent implements OnInit {
   constructor(private auth: AuthService, private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit() {
+    sessionStorage.clear(); // Détruire toute session existante dès qu'on arrive au login
     this.route.queryParams.subscribe(params => {
       const token = params['token'];
       if (token) {
