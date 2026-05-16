@@ -50,26 +50,31 @@ Nous avons implémenté une sécurité de niveau industriel :
 
 ---
 
-## ☁️ 4. Guide de Déploiement Azure
+## 🐳 4. Guide de Déploiement Docker Hub
 
 ### Pré-requis
-- Un compte Azure avec un **Container Registry (ACR)**.
-- Azure App Service ou Azure Container Apps.
+- Un compte sur **Docker Hub**.
+- Docker Desktop installé localement.
 
 ### Étapes de déploiement
 1. **Build des images** :
    ```powershell
    docker-compose build
    ```
-2. **Tag et Push vers ACR** :
+2. **Tag et Push vers Docker Hub** :
+   Remplacez `VOTRE_USER` par votre identifiant Docker Hub (ex: `ahmedlakdhar`).
    ```powershell
-   docker tag sttgo-backend <votre-acr>.azurecr.io/sttgo-backend
-   docker push <votre-acr>.azurecr.io/sttgo-backend
+   # Pour le Backend
+   docker tag sttgo-backend VOTRE_USER/sttgo-backend:latest
+   docker push VOTRE_USER/sttgo-backend:latest
+
+   # Pour le Frontend
+   docker tag sttgo-frontend VOTRE_USER/sttgo-frontend:latest
+   docker push VOTRE_USER/sttgo-frontend:latest
    ```
-3. **Configuration Azure** :
+3. **Mise à jour du serveur de production** :
+   - Installer Docker et Docker Compose sur votre serveur.
    - Configurer les variables d'environnement (`SPRING_DATASOURCE_URL`, `MQTT_BROKER_URL`).
-   - Mapper les ports (80 pour le front, 8889 pour le back).
-   - Autoriser le port 1883 pour le broker MQTT.
 
 ---
 

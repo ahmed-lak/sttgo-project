@@ -20,7 +20,7 @@ export class LoginComponent implements OnInit {
   invitationToken = '';
   newPassword = '';
 
-  constructor(private auth: AuthService, private router: Router, private route: ActivatedRoute) {}
+  constructor(private auth: AuthService, private router: Router, private route: ActivatedRoute) { }
 
   ngOnInit() {
     sessionStorage.clear(); // Détruire toute session existante dès qu'on arrive au login
@@ -31,7 +31,7 @@ export class LoginComponent implements OnInit {
         // Dans une vraie app, on pourrait avoir des paramètres différents (ex: ?invite=xxx ou ?reset=xxx)
         // Ici on va basculer selon le mode détecté par l'URL ou simplement tenter le reset par défaut
         // MAIS si on arrive sur /register avec un token, c'est une invitation.
-        
+
         if (this.router.url.includes('/register')) {
           this.invitationToken = token;
           this.isRegisterMode = true;

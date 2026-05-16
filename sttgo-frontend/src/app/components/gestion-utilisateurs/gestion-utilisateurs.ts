@@ -18,19 +18,19 @@ export class GestionUtilisateurs implements OnInit {
   inviteMessage = '';
 
   constructor(
-    public auth: AuthService, 
+    public auth: AuthService,
     private http: HttpClient,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   onInvite() {
     if (!this.inviteEmail) return;
     this.inviteLoading = true;
     this.inviteMessage = '';
 
-    this.http.post('/api/admin/users/invite', { 
-      email: this.inviteEmail, 
-      role: this.inviteRole 
+    this.http.post('/api/admin/users/invite', {
+      email: this.inviteEmail,
+      role: this.inviteRole
     }, {
       headers: this.auth.getHeaders()
     }).subscribe({
@@ -49,22 +49,29 @@ export class GestionUtilisateurs implements OnInit {
 
   ngOnInit() {
     this.loadUsers();
+    
+    // Auto-retry après 400ms pour éviter le "F5" manuel
+    setTimeout(() => {
+      if (this.users.length === 0 && !this.error) {
+        this.loadUsers();
+      }
+    }, 400);
   }
 
   loadUsers() {
     this.loading = true;
     this.error = '';
-    const creds = localStorage.getItem('credentials');
 
-    if (!creds) {
-      this.error = 'Vous devez vous connecter en tant qu\'administrateur.';
+    const headers = this.auth.getHeaders();
+    const token = sessionStorage.getItem('credentials');
+
+    if (!token) {
+      this.error = 'Session expirée ou invalide. Veuillez vous reconnecter.';
       this.loading = false;
       return;
     }
 
-    this.http.get<any[]>('/api/admin/users', {
-      headers: this.auth.getHeaders()
-    }).subscribe({
+    this.http.get<any[]>('/api/admin/users', { headers }).subscribe({
       next: (data) => {
         this.users = data;
         this.loading = false;

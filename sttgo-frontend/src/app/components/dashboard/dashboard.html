@@ -25,16 +25,20 @@
         <!-- DROPDOWN DES ALERTES -->
         <div class="nav-alert-dropdown" *ngIf="alertesVisible && alertesCiternes.length > 0">
           <div class="nav-alert-drop-header">
-            <span>&#9888;&#65039; Citernes Vides</span>
+            <span>Alertes Citernes</span>
             <button (click)="alertesVisible = false">&#x2715;</button>
           </div>
           <div class="nav-alert-drop-item" *ngFor="let a of alertesCiternes">
-            <div class="nav-alert-drop-icon">&#x1F6E2;</div>
+            <div class="nav-alert-drop-icon" style="color: #1e293b;">&#x1F6E2;</div>
             <div class="nav-alert-drop-info">
               <strong>{{ a.nom }}</strong>
               <span>&#x1F4CD; {{ a.depot }}</span>
             </div>
-            <span class="nav-alert-drop-badge">VIDE</span>
+            <span class="nav-alert-drop-badge" 
+                  [style.background]="a.type === 'SIGNAL PERDU' ? '#64748b' : '#ef4444'"
+                  style="color: white; border: none;">
+              {{ a.type }}
+            </span>
           </div>
         </div>
         <!-- MESSAGE SI PAS D'ALERTES -->
@@ -135,7 +139,7 @@
 
           <div class="manuel-depot-titles">
             <h2 class="manuel-depot-name">{{ group.depot.nom }}</h2>
-            <p class="manuel-depot-loc">🏭 {{ group.depot.localisation }}</p>
+            <p class="manuel-depot-loc">{{ group.depot.localisation }}</p>
           </div>
         </div>
         <div class="manuel-depot-meta">

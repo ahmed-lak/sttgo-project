@@ -28,7 +28,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
   filtreActuel: string = 'TOUT';
 
   // Alertes pour citernes vides ou critiques
-  alertesCiternes: { nom: string, depot: string, pourcentage: number }[] = [];
+  alertesCiternes: { nom: string, depot: string, pourcentage: number, type: string }[] = [];
   alertesVisible: boolean = true;
   
   // Nouveaux états
@@ -251,13 +251,23 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
   }
 
   verifierAlertes() {
-    this.alertesCiternes = this.mesures
-      .filter(m => m.pourcentage <= 20) // Seuil d'alerte à 20% ou moins
-      .map(m => ({
-        nom: m.citerne.nom,
-        depot: m.citerne.depot ? m.citerne.depot.nom : 'Sans dépôt',
-        pourcentage: m.pourcentage
-      }));
+    const alerts: any[] = [];
+    
+    this.mesures.forEach(m => {
+      const isOff = this.isOffline(m.dateMesure);
+      const isLow = m.pourcentage <= 20;
+
+      if (isLow || isOff) {
+        alerts.push({
+          nom: m.citerne.nom,
+          depot: m.citerne.depot ? m.citerne.depot.nom : 'Sans dépôt',
+          pourcentage: m.pourcentage,
+          type: isOff ? 'SIGNAL PERDU' : 'VIDE'
+        });
+      }
+    });
+    
+    this.alertesCiternes = alerts;
   }
 
   hasTempAlert(): boolean {

@@ -19,9 +19,12 @@
 </nav>
 
 <div class="manuel-page-container">
-  <header class="manuel-header">
-    <h1 class="manuel-title">Gestion des <span>Utilisateurs</span></h1>
-    <p class="manuel-subtitle">Validation des accès et rôles</p>
+  <header class="manuel-header" style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h1 class="manuel-title">Gestion des <span>Utilisateurs</span></h1>
+      <p class="manuel-subtitle">Validation des accès et rôles</p>
+    </div>
+
   </header>
 
   <!-- Section Invitation -->
@@ -84,7 +87,7 @@
               <button class="btn-validate admin" (click)="validateUser(u, 'ADMIN')">Valider ADMIN</button>
               <button class="btn-validate" (click)="validateUser(u, 'WORKER')">Valider OUVRIER</button>
             </div>
-            <button class="btn-delete" (click)="deleteUser(u.id)">Supprimer</button>
+            <button class="btn-delete" (click)="deleteUser(u.id)" *ngIf="u.role !== 'SUPER_ADMIN'">Supprimer</button>
           </td>
         </tr>
       </tbody>

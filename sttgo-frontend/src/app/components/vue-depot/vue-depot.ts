@@ -26,7 +26,7 @@ export class VueDepot implements OnInit, OnDestroy {
     private surveillanceService: SurveillanceService,
     private cdr: ChangeDetectorRef,
     public auth: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.depotId = Number(this.route.snapshot.paramMap.get('id'));
@@ -35,7 +35,7 @@ export class VueDepot implements OnInit, OnDestroy {
       return;
     }
     this.chargerDonnees();
-    this.intervalId = setInterval(() => this.chargerDonnees(), 5000);
+    this.intervalId = setInterval(() => this.chargerDonnees(), 2000);
   }
 
   chargerDonnees() {
@@ -49,12 +49,12 @@ export class VueDepot implements OnInit, OnDestroy {
           this.isLoading = false;
           return;
         }
-        
+
         // On filtre les mesures pour ce dépôt spécifique
         this.mesures = res.toutesMesures.filter((m: Mesure) => m.citerne.depot && m.citerne.depot.id === this.depotId);
         this.isLoading = false;
         this.cdr.detectChanges();
-        
+
         // Rafraîchir les icônes Lucide
         setTimeout(() => { if ((window as any).lucide) (window as any).lucide.createIcons(); }, 100);
       },
@@ -67,17 +67,17 @@ export class VueDepot implements OnInit, OnDestroy {
 
   // Couleurs par type de produit
   getProduitColor(produit: string | undefined | null): string {
-    if (!produit) return '#64748b'; 
+    if (!produit) return '#64748b';
     const p = produit.toLowerCase();
     if (p.includes('gasoil')) return '#10b981'; // Green for Gasoil
     if (p.includes('hexane')) return '#2563eb'; // Blue for Hexane
     if (p.includes('huile')) return '#eab308';  // Yellow for Huile
-    return '#64748b'; 
+    return '#64748b';
   }
 
   getColor(p: number, produit?: string): string {
     if (p < 20) return '#ef4444'; // Alerte critique rouge (< 20%)
-    
+
     // Sinon, couleur fixe selon le type de produit
     return this.getProduitColor(produit);
   }
