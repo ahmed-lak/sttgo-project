@@ -30,6 +30,7 @@ export class Historique implements OnInit, OnDestroy {
   dateDebut: string = '';
   dateFin: string = '';
   isFiltering: boolean = false;
+  hasCustomFilter: boolean = false;
 
   constructor(
     private surveillanceService: SurveillanceService,
@@ -43,50 +44,46 @@ export class Historique implements OnInit, OnDestroy {
     this.citerneId = Number(this.route.snapshot.paramMap.get('id'));
     if (!this.citerneId) { this.retour(); return; }
     
-    // Initialiser les dates par défaut (les 7 derniers jours)
-    const today = new Date();
-    const lastWeek = new Date();
-    lastWeek.setDate(today.getDate() - 7);
-    
-    this.dateFin = today.toISOString().split('T')[0];
-    this.dateDebut = lastWeek.toISOString().split('T')[0];
+    // Initialiser les dates par défaut (Aujourd'hui)
+    const todayStr = new Date().toISOString().split('T')[0];
+    this.dateFin = todayStr;
+    this.dateDebut = todayStr;
 
     this.chargerDonnees();
 
     // Rafraîchir les données toutes les 10 secondes
     this.intervalId = setInterval(() => {
-      // On ne rafraîchit pas automatiquement si l'utilisateur est en train de filtrer une période précise
-      if (!this.isFiltering) {
-        this.chargerDonnees();
+      if (this.isFiltering) return;
+      
+      // On ne rafraîchit que si la période affichée inclut aujourd'hui
+      const today = new Date().toISOString().split('T')[0];
+      if (this.dateFin >= today) {
+        this.chargerDonnees(true);
       }
     }, 10000);
   }
 
-  chargerDonnees() {
-    this.isLoading = true;
-    this.surveillanceService.getHistorique(this.citerneId).subscribe({
-      next: (data: Mesure[]) => {
-        this.isLoading = false;
-        if (data && data.length > 0) {
-          this.cdr.detectChanges(); 
-          this.creerGraphique(data);
-        }
-      },
-      error: () => this.isLoading = false
-    });
-
+  chargerDonnees(silent: boolean = false) {
+    // 1. Mettre à jour les stats globales de consommation
     this.surveillanceService.getConsommation(this.citerneId).subscribe({
       next: (res: any) => {
         this.stats = { ...this.stats, ...res };
         this.cdr.detectChanges();
       }
     });
+
+    // 2. Le graphique suit toujours les dates du calendrier !
+    this.chargerDonneesParRange(silent);
   }
 
-  chargerDonneesParRange() {
+  chargerDonneesParRange(silentRefresh: boolean = false) {
     if (!this.dateDebut || !this.dateFin) return;
     
-    this.isFiltering = true;
+    this.hasCustomFilter = true;
+    if (!silentRefresh) {
+      this.isFiltering = true;
+      this.isLoading = true;
+    }
     // Format ISO pour le backend
     const start = `${this.dateDebut}T00:00:00`;
     const end = `${this.dateFin}T23:59:59`;
@@ -103,6 +100,7 @@ export class Historique implements OnInit, OnDestroy {
     this.surveillanceService.getHistoriqueRange(this.citerneId, start, end).subscribe({
       next: (data: Mesure[]) => {
         this.isFiltering = false;
+        this.isLoading = false;
         if (data && data.length > 0) {
           this.creerGraphique(data);
         } else {
@@ -117,13 +115,29 @@ export class Historique implements OnInit, OnDestroy {
       },
       error: () => {
         this.isFiltering = false;
+        this.isLoading = false;
         alert("Erreur lors de la récupération des données.");
       }
     });
   }
 
   creerGraphique(data: any[]) {
-    const sortedData = data.sort((a, b) => new Date(a.dateMesure).getTime() - new Date(b.dateMesure).getTime());
+    let sortedData = data.sort((a, b) => new Date(a.dateMesure).getTime() - new Date(b.dateMesure).getTime());
+    
+    // Échantillonnage intelligent (Chunk Averaging) pour les longues périodes (ex: 1 an)
+    // Au lieu d'ignorer des points, on fait la moyenne des blocs pour garder une courbe précise et lisible.
+    if (sortedData.length > 200) {
+      const step = Math.ceil(sortedData.length / 200);
+      const reducedData = [];
+      for (let i = 0; i < sortedData.length; i += step) {
+        const chunk = sortedData.slice(i, i + step);
+        const avgVolume = chunk.reduce((sum, val) => sum + val.volume, 0) / chunk.length;
+        const midPoint = chunk[Math.floor(chunk.length / 2)];
+        reducedData.push({ ...midPoint, volume: avgVolume });
+      }
+      sortedData = reducedData;
+    }
+
     const labels = sortedData.map(m => {
       const d = new Date(m.dateMesure);
       return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) + ' ' + 
@@ -131,10 +145,14 @@ export class Historique implements OnInit, OnDestroy {
     });
     const volumes = sortedData.map(m => m.volume);
 
+    // Ajuster l'affichage selon le nombre de points
+    const pointRadiusValue = volumes.length > 100 ? 0 : 3;
+
     if (this.chart) {
       // Mise à jour fluide du graphique existant
       this.chart.data.labels = labels;
       this.chart.data.datasets[0].data = volumes;
+      this.chart.data.datasets[0].pointRadius = pointRadiusValue;
       this.chart.update('none'); // 'none' pour éviter les animations trop brusques à chaque refresh
     } else {
       // Premier rendu du graphique
@@ -148,9 +166,10 @@ export class Historique implements OnInit, OnDestroy {
             data: volumes,
             borderColor: '#3b82f6',
             backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            borderWidth: 3,
+            borderWidth: 2,
+            pointRadius: pointRadiusValue,
             fill: true,
-            tension: 0.4
+            tension: 0.1 // Évite les dépassements de courbe (overshoot) pour les données brutes
           }]
         },
         options: {
@@ -164,6 +183,14 @@ export class Historique implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  reinitialiserFiltre() {
+    this.hasCustomFilter = false;
+    const todayStr = new Date().toISOString().split('T')[0];
+    this.dateFin = todayStr;
+    this.dateDebut = todayStr;
+    this.chargerDonnees();
   }
 
   retour() { this.router.navigate(['/dashboard']); }
