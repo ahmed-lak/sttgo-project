@@ -73,22 +73,23 @@
   margin-bottom: 25px;
 }
 
-.sttgo-logo-area {
-  background: linear-gradient(135deg, #1e3a8a, #172554);
-  width: fit-content;
-  min-width: 80px;
-  padding: 0 15px;
-  height: 55px;
-  border-radius: 20px;
+.sttgo-logo-wrapper {
   display: flex;
-  align-items: center;
   justify-content: center;
-  margin: 0 auto 15px;
-  color: white;
-  font-weight: 800;
-  font-size: 1.2rem;
-  letter-spacing: 1px;
-  box-shadow: 0 10px 25px rgba(30, 58, 138, 0.4);
+  align-items: center;
+  margin: 0 auto 20px;
+}
+
+.sttgo-logo-img {
+  width: 95px;
+  height: 95px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 20px rgba(30, 58, 138, 0.2));
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.sttgo-logo-img:hover {
+  transform: rotate(6deg) scale(1.08);
 }
 
 .login-header h3 {
