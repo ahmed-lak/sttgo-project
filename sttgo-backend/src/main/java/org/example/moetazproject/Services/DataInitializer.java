@@ -61,8 +61,8 @@ public class DataInitializer implements CommandLineRunner {
         // 2. INITIALISATION DEPOT
         if (depotRepository.count() == 0) {
             org.example.moetazproject.Entities.Depot d = new org.example.moetazproject.Entities.Depot();
-            d.setNom("Dépôt Principal - Sfax");
-            d.setLocalisation("Zone Industrielle");
+            d.setNom("Dépôt Principal ");
+            d.setLocalisation("Zone nord");
             d.setProduit("Gasoil");
             depotRepository.save(d);
             System.out.println(">>> Dépôt par défaut créé.");
