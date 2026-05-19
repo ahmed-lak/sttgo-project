@@ -39,7 +39,7 @@ public class DataInitializer implements CommandLineRunner {
             System.out.println(">>> Nettoyage : Ancien compte 'admin' supprimé.");
         });
 
-        final String ADMIN_USERNAME = "admin@sttgo.com";
+        final String ADMIN_USERNAME = "adminsttgo@gmail.com";
         var existingAdmin = userRepository.findByUsername(ADMIN_USERNAME);
 
         if (existingAdmin.isEmpty()) {
@@ -49,7 +49,7 @@ public class DataInitializer implements CommandLineRunner {
             admin.setNom("System");
             admin.setPrenom("Admin");
             admin.setPoste("Administrateur");
-            admin.setPassword(passwordEncoder.encode("admin"));
+            admin.setPassword(passwordEncoder.encode("admin123"));
             admin.setRole("SUPER_ADMIN");
             admin.setEnabled(true);
             userRepository.save(admin);
