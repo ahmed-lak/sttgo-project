@@ -34,11 +34,6 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         // 1. INITIALISATION ADMIN
-        userRepository.findByUsername("admin").ifPresent(u -> {
-            userRepository.delete(u);
-            System.out.println(">>> Nettoyage : Ancien compte 'admin' supprimé.");
-        });
-
         final String ADMIN_USERNAME = "adminsttgo@gmail.com";
         var existingAdmin = userRepository.findByUsername(ADMIN_USERNAME);
 

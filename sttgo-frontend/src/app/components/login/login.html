@@ -13,7 +13,7 @@
     <ng-container *ngIf="!isRegisterMode && !isForgotMode && !isResetMode">
       <div class="form-group">
         <label>Email / Identifiant</label>
-        <input type="text" [(ngModel)]="username" class="custom-input" placeholder="exemple@sttgo.com">
+        <input type="text" [(ngModel)]="username" class="custom-input" placeholder="votre.email@gmail.com">
       </div>
 
       <div class="form-group">
@@ -75,7 +75,7 @@
     <ng-container *ngIf="isForgotMode">
       <div class="form-group">
         <label>Votre Email</label>
-        <input type="email" [(ngModel)]="forgotEmail" class="custom-input" placeholder="exemple@sttgo.com">
+        <input type="email" [(ngModel)]="forgotEmail" class="custom-input" placeholder="votre.email@gmail.com">
       </div>
 
       <button (click)="onForgotPassword()" class="btn-login">Réinitialiser le mot de passe</button>
