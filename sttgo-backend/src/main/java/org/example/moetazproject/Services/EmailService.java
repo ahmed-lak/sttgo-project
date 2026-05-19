@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * SERVICE : EmailService
@@ -17,6 +18,36 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Autowired
+    private org.example.moetazproject.Repositories.UserRepository userRepository;
+
+    @Value("${spring.mail.username}")
+    private String mailFrom;
+
+    @Value("${sttgo.admin.email:adminsttgo@gmail.com}")
+    private String adminEmail;
+
+    /**
+     * Récupère dynamiquement tous les e-mails des utilisateurs ADMIN et SUPER_ADMIN actifs.
+     */
+    private String[] getAdminEmails() {
+        try {
+            java.util.List<org.example.moetazproject.Entities.User> admins = 
+                userRepository.findByRoleInAndEnabledTrue(java.util.Arrays.asList("ADMIN", "SUPER_ADMIN"));
+            
+            if (admins != null && !admins.isEmpty()) {
+                return admins.stream()
+                        .map(org.example.moetazproject.Entities.User::getEmail)
+                        .filter(email -> email != null && !email.trim().isEmpty())
+                        .toArray(String[]::new);
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la récupération des e-mails admin : " + e.getMessage());
+        }
+        // Fallback si aucun administrateur n'est trouvé
+        return new String[]{adminEmail};
+    }
+
     /**
      * Envoie une alerte de niveau bas pour une citerne.
      */
@@ -24,15 +55,15 @@ public class EmailService {
         try {
             // SimpleMailMessage : Un objet qui contient les champs classiques d'un mail.
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("sttgo-alerts@example.com");
-            message.setTo("admin@sttgo.com"); // Destinataire principal
-            message.setSubject("⚠️ ALERTE CRITIQUE : Niveau Citerne " + tankName);
+            message.setFrom(mailFrom);
+            message.setTo(getAdminEmails()); // Destinataires principaux (tous les admins/super admins)
+            message.setSubject("ALERTE CRITIQUE : Niveau Citerne " + tankName);
             message.setText("Attention,\n\nLe niveau de la citerne '" + tankName + "' a atteint un seuil critique de " + String.format("%.2f", level) + "%.\n\nVeuillez vérifier l'installation rapidement.\n\nL'équipe STTGO.");
             
             mailSender.send(message); // Envoi effectif
-            System.out.println("✅ Email d'alerte envoyé pour : " + tankName);
+            System.out.println("Email d'alerte envoyé pour : " + tankName);
         } catch (Exception e) {
-            System.err.println("❌ Erreur envoi email alerte : " + e.getMessage());
+            System.err.println("Erreur envoi email alerte : " + e.getMessage());
         }
     }
 
@@ -42,7 +73,7 @@ public class EmailService {
     public void sendResetPasswordEmail(String userEmail, String token) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("sttgo-auth@example.com");
+            message.setFrom(mailFrom);
             message.setTo(userEmail);
             message.setSubject("Réinitialisation de votre mot de passe - STTGO");
             
@@ -54,9 +85,9 @@ public class EmailService {
                     resetLink + "\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez cet email.\n\nCordialement,\nL'équipe STTGO.");
             
             mailSender.send(message);
-            System.out.println("✅ Email de réinitialisation envoyé à : " + userEmail);
+            System.out.println("Email de réinitialisation envoyé à : " + userEmail);
         } catch (Exception e) {
-            System.err.println("❌ Erreur envoi email reset : " + e.getMessage());
+            System.err.println("Erreur envoi email reset : " + e.getMessage());
         }
     }
 
@@ -66,7 +97,7 @@ public class EmailService {
     public void sendInvitationEmail(String email, String token) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("sttgo-auth@example.com");
+            message.setFrom(mailFrom);
             message.setTo(email);
             message.setSubject("Invitation à rejoindre STTGO");
 
@@ -78,9 +109,9 @@ public class EmailService {
                     registrationLink + "\n\nCe lien est à usage unique.\n\nCordialement,\nL'équipe STTGO.");
 
             mailSender.send(message);
-            System.out.println("✅ Email d'invitation envoyé à : " + email);
+            System.out.println("Email d'invitation envoyé à : " + email);
         } catch (Exception e) {
-            System.err.println("❌ Erreur envoi email invitation : " + e.getMessage());
+            System.err.println("Erreur envoi email invitation : " + e.getMessage());
         }
     }
 
@@ -90,15 +121,15 @@ public class EmailService {
     public void sendTemperatureAlert(String depotName, double temperature) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("sttgo-alerts@example.com");
-            message.setTo("admin@sttgo.com"); 
-            message.setSubject("🔥 ALERTE TEMPÉRATURE : Dépôt " + depotName);
+            message.setFrom(mailFrom);
+            message.setTo(getAdminEmails()); 
+            message.setSubject("ALERTE TEMPÉRATURE : Dépôt " + depotName);
             message.setText("Attention,\n\nLa température dans le dépôt '" + depotName + "' a atteint un seuil critique de " + String.format("%.2f", temperature) + "°C.\n\nVeuillez vérifier l'installation rapidement.\n\nL'équipe STTGO.");
             
             mailSender.send(message);
-            System.out.println("✅ Email d'alerte température envoyé pour : " + depotName);
+            System.out.println("Email d'alerte température envoyé pour : " + depotName);
         } catch (Exception e) {
-            System.err.println("❌ Erreur envoi email température : " + e.getMessage());
+            System.err.println("Erreur envoi email température : " + e.getMessage());
         }
     }
 }
