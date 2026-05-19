@@ -44,6 +44,12 @@ public class MqttSubscriber {
     @Value("${mqtt.topic:citerne/mesure}")
     private String topic;
 
+    @Value("${mqtt.username:backend_sttgo}")
+    private String mqttUsername;
+
+    @Value("${mqtt.password:sttgo_secure_2024}")
+    private String mqttPassword;
+
     private MqttClient mqttClient;
 
     /**
@@ -60,10 +66,13 @@ public class MqttSubscriber {
             mqttClient = new MqttClient(brokerUrl, clientId, new org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence());
 
             MqttConnectOptions options = new MqttConnectOptions();
-            options.setAutomaticReconnect(true); // Se reconnecte tout seul si le réseau coupe
-            options.setCleanSession(false);      // "false" = Le broker garde les messages pour nous si on est déconnecté
+            options.setAutomaticReconnect(true);
+            options.setCleanSession(false);
             options.setConnectionTimeout(10);
             options.setKeepAliveInterval(60);
+            // Authentification securisee
+            options.setUserName(mqttUsername);
+            options.setPassword(mqttPassword.toCharArray());
 
             // Définition de ce qu'on fait quand un message arrive
             mqttClient.setCallback(new MqttCallback() {
