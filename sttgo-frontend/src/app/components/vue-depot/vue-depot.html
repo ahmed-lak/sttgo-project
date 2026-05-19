@@ -30,20 +30,19 @@
       </div>
     </div>
 
-    <!-- NOUVEAU : Affichage Température et Humidité comme dans le Dashboard -->
-    <div class="depot-environment" *ngIf="depot.temperature !== null">
-      <div class="env-pill temp" [class.critical]="depot.alerteTemp">
-        <i data-lucide="thermometer"></i>
-        <span>{{ depot.temperature }}°C</span>
-      </div>
-      <div class="env-pill hum">
-        <i data-lucide="droplets"></i>
-        <span>{{ depot.humidity }}%</span>
-      </div>
-    </div>
-
     <div class="depot-meta">
-        <span class="count-badge">{{ mesures.length }} citernes actives</span>
+      <!-- NOUVEAU : Affichage Température et Humidité à côté du badge -->
+      <div class="depot-environment" *ngIf="depot.temperature !== null">
+        <div class="env-pill temp" [class.critical]="depot.alerteTemp">
+          <i data-lucide="thermometer"></i>
+          <span>{{ depot.temperature }}°C</span>
+        </div>
+        <div class="env-pill hum">
+          <i data-lucide="droplets"></i>
+          <span>{{ depot.humidity }}%</span>
+        </div>
+      </div>
+      <span class="count-badge">{{ mesures.length }} citernes actives</span>
     </div>
   </div>
 
