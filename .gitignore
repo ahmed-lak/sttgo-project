@@ -35,3 +35,7 @@ Thumbs.db
 
 # Paho MQTT client runtime persistence (auto-generated, safe to delete)
 paho*/
+
+# Mosquitto data and logs (auto-generated, causes git conflicts)
+mosquitto/data/
+mosquitto/log/
