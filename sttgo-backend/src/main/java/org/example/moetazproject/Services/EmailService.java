@@ -27,6 +27,10 @@ public class EmailService {
     @Value("${sttgo.admin.email:adminsttgo@gmail.com}")
     private String adminEmail;
 
+    // URL publique du frontend (configurée dans application.properties ou via variable d'environnement)
+    @Value("${app.frontend.url:http://localhost}")
+    private String frontendUrl;
+
     /**
      * Récupère dynamiquement tous les e-mails des utilisateurs ADMIN et SUPER_ADMIN actifs.
      */
@@ -78,7 +82,7 @@ public class EmailService {
             message.setSubject("Réinitialisation de votre mot de passe - STTGO");
             
             // Lien vers le frontend avec le token de sécurité
-            String resetLink = "http://localhost/reset-password?token=" + token;
+            String resetLink = frontendUrl + "/reset-password?token=" + token;
             
             message.setText("Bonjour,\n\nVous avez demandé la réinitialisation de votre mot de passe.\n" +
                     "Veuillez cliquer sur le lien ci-dessous pour choisir un nouveau mot de passe :\n\n" +
@@ -101,8 +105,8 @@ public class EmailService {
             message.setTo(email);
             message.setSubject("Invitation à rejoindre STTGO");
 
-            // Lien d'inscription
-            String registrationLink = "http://localhost/register?token=" + token;
+            // Lien d'inscription (utilise l'URL publique du frontend)
+            String registrationLink = frontendUrl + "/register?token=" + token;
 
             message.setText("Bonjour,\n\nVous avez été invité à rejoindre la plateforme STTGO.\n" +
                     "Veuillez cliquer sur le lien ci-dessous pour créer votre compte :\n\n" +
