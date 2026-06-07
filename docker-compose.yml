@@ -13,6 +13,7 @@ services:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
+    restart: always
 
   mosquitto:
     image: eclipse-mosquitto:latest
@@ -24,6 +25,7 @@ services:
       - ./mosquitto/config:/mosquitto/config
       - ./mosquitto/data:/mosquitto/data
       - ./mosquitto/log:/mosquitto/log
+    restart: always
 
   backend:
     build: ./sttgo-backend
@@ -35,8 +37,8 @@ services:
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
       - MQTT_BROKER_URL=tcp://mosquitto:1883
-      # Public server IP/domain used in invitation & reset-password emails
       - APP_FRONTEND_URL=https://sttgo.francecentral.cloudapp.azure.com
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
     depends_on:
       mysql-db:
         condition: service_healthy
@@ -53,6 +55,7 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - backend
+    restart: always
 
 volumes:
   mysql_data:
