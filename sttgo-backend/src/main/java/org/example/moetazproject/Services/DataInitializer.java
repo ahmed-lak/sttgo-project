@@ -69,7 +69,7 @@ public class DataInitializer implements CommandLineRunner {
             if (!depots.isEmpty()) {
                 org.example.moetazproject.Entities.Citerne c = new org.example.moetazproject.Entities.Citerne();
                 c.setId(1L);
-                c.setNom("Citerne A1");
+                c.setNom("Citerne 1");
                 c.setProduit("Gasoil");
                 c.setType("VERTICAL");
                 c.setCapaciteMax(10000);

@@ -1,0 +1,65 @@
+# Chapitre X : Conteneurisation, Déploiement Cloud et Sécurisation
+
+## 1. Introduction
+Afin de rendre l'application STTGO robuste, portable et accessible aux utilisateurs finaux, il a été nécessaire de passer d'un environnement de développement local à une architecture de production hébergée dans le cloud. Cette transition s'est déroulée en plusieurs étapes clés : la conteneurisation des services, l'approvisionnement de l'infrastructure cloud, le déploiement initial, et enfin, la sécurisation et l'optimisation des configurations.
+
+## 2. Phase de Conteneurisation (Docker)
+Avant d'envisager tout déploiement sur un serveur distant, l'application devait être standardisée pour fonctionner de manière identique sur n'importe quelle machine. Nous avons utilisé la technologie Docker pour conteneuriser l'ensemble de l'architecture.
+
+### 2.1. Création des environnements locaux
+*   Dockerisation des services : Des fichiers Dockerfile ont été rédigés pour le backend (Spring Boot) et le frontend (Angular/Nginx).
+*   Orchestration avec Docker-Compose : Un fichier central docker-compose.yml a été créé à la racine du projet pour lier les différents microservices. Cette architecture comprenait quatre services principaux :
+    *   Le conteneur Frontend (Nginx/Angular).
+    *   Le conteneur Backend (Spring Boot).
+    *   Le conteneur Base de données (MySQL 8.0).
+    *   Le conteneur Broker MQTT (Eclipse Mosquitto).
+*   Résolution des problèmes locaux : Lors de cette phase, des erreurs liées aux permissions de Docker Desktop sous Windows ont été résolues, permettant de valider le fonctionnement de l'architecture distribuée en local.
+
+## 3. Approvisionnement de l'Infrastructure Cloud (Microsoft Azure)
+Une fois l'application fonctionnelle sous forme de conteneurs, l'infrastructure d'hébergement a été mise en place sur Microsoft Azure.
+
+*   Création de la Machine Virtuelle (VM) : Une instance de type Standard B2ls v2 (2 processeurs virtuels, 4 Go de mémoire) exécutant le système d'exploitation Ubuntu 24.04 LTS a été provisionnée dans la région "France Central".
+*   Configuration Réseau (NSG) : Lors de la création, une adresse IP publique statique (40.66.40.133) a été allouée. Le Groupe de Sécurité Réseau (NSG) a été configuré pour autoriser dans un premier temps les connexions SSH (Port 22) et HTTP (Port 80).
+
+## 4. Déploiement Initial sur le Serveur
+La migration du code vers le serveur cloud s'est faite via un dépôt distant (GitHub) pour garantir l'intégrité du code.
+
+1.  Préparation du Serveur : Connexion à la VM via SSH (azureuser) et installation des dépendances requises (Git, Docker, et Docker-Compose).
+2.  Clonage du Dépôt : Récupération du code source depuis GitHub (git clone).
+3.  Lancement Initial : Exécution de la commande "docker-compose up --build -d" pour construire les images et démarrer les conteneurs en arrière-plan.
+
+L'application est alors devenue accessible via l'adresse IP publique de la machine virtuelle.
+
+## 5. Découplage des Variables d'Environnement et Débogage
+Lors des tests sur l'environnement cloud, un problème critique a été identifié : le système d'emails automatisés (invitations et réinitialisations de mots de passe) générait des liens pointant vers http://localhost, les rendant inutilisables.
+
+Pour résoudre ce problème, le code source a été restructuré :
+*   Injection Dynamique : Une nouvelle propriété app.frontend.url a été introduite dans application.properties.
+*   Mise à jour des Services : La classe EmailService.java a été modifiée pour injecter dynamiquement l'URL du frontend.
+*   Variables Docker : Le fichier docker-compose.yml a été mis à jour pour transmettre la variable APP_FRONTEND_URL au conteneur backend, permettant de définir l'URL de production sans modifier le code source.
+
+## 6. Gestion des Versions et Nettoyage des Artefacts
+La transition vers le cloud a mis en évidence des conflits Git causés par des fichiers générés automatiquement lors de l'exécution :
+*   Le client MQTT générait localement des répertoires paho*.
+*   Le broker Mosquitto modifiait le fichier de base de données mosquitto/data/mosquitto.db en cours d'exécution, bloquant les mises à jour du code (git pull) sur le serveur.
+
+Résolution : Le fichier .gitignore a été mis à jour pour exclure ces dossiers d'exécution. Les fichiers conflictuels ont été supprimés manuellement (via sudo rm) sur la machine virtuelle, garantissant ainsi des déploiements continus fluides.
+
+## 7. Sécurisation de l'Application (Intégration SSL/TLS)
+Afin de garantir la confidentialité des données et de sécuriser l'authentification, l'application a été migrée du protocole HTTP vers HTTPS.
+
+### 7.1. Configuration DNS
+L'autorité Let's Encrypt ne délivrant pas de certificats pour de simples adresses IP, nous avons utilisé le service DNS d'Azure pour attribuer un nom de domaine complet à la VM : sttgo.francecentral.cloudapp.azure.com.
+
+### 7.2. Génération des Certificats et Proxy Inverse
+*   Certbot : Installé sur la machine virtuelle Ubuntu, il a permis de générer automatiquement les clés cryptographiques (fullchain.pem et privkey.pem) via Let's Encrypt.
+*   Configuration Nginx : Le fichier nginx.conf du frontend a été remanié pour agir comme un proxy inverse sécurisé :
+    *   Redirection permanente (301) forçant tout le trafic HTTP (Port 80) vers HTTPS (Port 443).
+    *   Configuration pour utiliser les certificats montés depuis la machine hôte.
+    *   Transfert des en-têtes sécurisés vers le backend Spring Boot.
+
+### 7.3. Ajustement du Pare-feu Azure
+Suite à la configuration HTTPS, les premiers tests ont abouti à une erreur ERR_CONNECTION_TIMED_OUT. Ce problème a été résolu en ajoutant une règle de sécurité entrante dans le NSG Azure pour autoriser le trafic TCP sur le port 443.
+
+## 8. Conclusion de la phase de déploiement
+Après ces configurations successives, un test complet a été validé : la navigation vers le nom de domaine affiche désormais l'application avec une connexion sécurisée (cadenas SSL), les redirections fonctionnent, et les emails génèrent des liens de production corrects. L'application est aujourd'hui hautement disponible, conteneurisée et sécurisée selon les standards de l'industrie.

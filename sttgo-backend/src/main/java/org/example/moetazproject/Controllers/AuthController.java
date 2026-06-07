@@ -110,55 +110,53 @@ public class AuthController {
         ));
     }
 
+
     /**
-     * Endpoint de secours pour créer/réparer le compte admin.
+     * Endpoint de secours pour créer/réparer le compte admin gmail.
      * Accessible via : GET http://localhost:8889/api/auth/setup
      */
     @GetMapping("/setup")
     public ResponseEntity<?> setup() {
-        final String ADMIN_EMAIL = "admin@sttgo.com";
+        final String ADMIN_EMAIL = "adminsttgo@gmail.com";
         var existing = userRepository.findByUsername(ADMIN_EMAIL);
-        
+
         if (existing.isPresent()) {
             User admin = existing.get();
             admin.setEnabled(true);
             admin.setRole("SUPER_ADMIN");
             userRepository.save(admin);
-            return ResponseEntity.ok(Map.of("status", "repaired", "message", "Admin account repaired: enabled=true, role=SUPER_ADMIN"));
+            return ResponseEntity.ok(Map.of("status", "repaired", "message", "Compte admin réparé : adminsttgo@gmail.com"));
         }
-        
+
         User admin = new User();
         admin.setUsername(ADMIN_EMAIL);
         admin.setEmail(ADMIN_EMAIL);
         admin.setNom("System");
         admin.setPrenom("Admin");
-        admin.setPoste("Administrateur Plateforme");
-        admin.setPassword(passwordEncoder.encode("admin"));
+        admin.setPoste("Administrateur");
+        admin.setPassword(passwordEncoder.encode("admin123"));
         admin.setRole("SUPER_ADMIN");
         admin.setEnabled(true);
         userRepository.save(admin);
-        
-        return ResponseEntity.ok(Map.of("status", "created", "message", "Admin account created: admin@sttgo.com / admin"));
+
+        return ResponseEntity.ok(Map.of("status", "created", "message", "Compte admin créé : adminsttgo@gmail.com / admin123"));
     }
 
     /**
-     * Endpoint de réinitialisation du compte admin.
+     * Endpoint de réinitialisation du compte admin principal.
      * Accessible via : GET http://localhost:8889/api/auth/reset-admin
-     * Remet à jour le compte "admin" avec le mot de passe "admin123" et le rôle ADMIN.
+     * Remet à jour le compte adminsttgo@gmail.com avec le mot de passe "admin123".
      */
     @GetMapping("/reset-admin")
     public ResponseEntity<?> resetAdmin() {
-        // Chercher le compte "admin" (ancien) OU "admin@sttgo.com" (nouveau)
-        var userOpt = userRepository.findByUsername("admin");
-        if (userOpt.isEmpty()) {
-            userOpt = userRepository.findByUsername("admin@sttgo.com");
-        }
+        final String ADMIN_EMAIL = "adminsttgo@gmail.com";
+        var userOpt = userRepository.findByUsername(ADMIN_EMAIL);
 
         if (userOpt.isEmpty()) {
-            // Créer un tout nouveau compte "admin" avec mot de passe "admin123"
+            // Créer le compte s'il n'existe pas
             User admin = new User();
-            admin.setUsername("admin");
-            admin.setEmail("admin@sttgo.com");
+            admin.setUsername(ADMIN_EMAIL);
+            admin.setEmail(ADMIN_EMAIL);
             admin.setNom("System");
             admin.setPrenom("Admin");
             admin.setPoste("Administrateur");
@@ -166,12 +164,11 @@ public class AuthController {
             admin.setRole("SUPER_ADMIN");
             admin.setEnabled(true);
             userRepository.save(admin);
-            return ResponseEntity.ok(Map.of("status", "created", "username", "admin", "password", "admin123"));
+            return ResponseEntity.ok(Map.of("status", "created", "username", ADMIN_EMAIL, "password", "admin123"));
         }
 
         // Mettre à jour le compte existant
         User admin = userOpt.get();
-        admin.setUsername("admin");
         admin.setPassword(passwordEncoder.encode("admin123"));
         admin.setRole("SUPER_ADMIN");
         admin.setEnabled(true);
@@ -179,9 +176,9 @@ public class AuthController {
 
         return ResponseEntity.ok(Map.of(
             "status", "updated",
-            "username", "admin",
+            "username", ADMIN_EMAIL,
             "password", "admin123",
-            "message", "Compte admin mis à jour ! Connectez-vous avec admin / admin123"
+            "message", "Compte admin mis à jour ! Connectez-vous avec adminsttgo@gmail.com / admin123"
         ));
     }
 

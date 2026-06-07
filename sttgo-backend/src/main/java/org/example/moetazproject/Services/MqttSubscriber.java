@@ -47,7 +47,7 @@ public class MqttSubscriber {
     @Value("${mqtt.username:backend_sttgo}")
     private String mqttUsername;
 
-    @Value("${mqtt.password:sttgo_secure_2024}")
+    @Value("${mqtt.password:sttgo_broker}")
     private String mqttPassword;
 
     private MqttClient mqttClient;
@@ -78,13 +78,13 @@ public class MqttSubscriber {
             mqttClient.setCallback(new MqttCallback() {
                 @Override
                 public void connectionLost(Throwable cause) {
-                    System.out.println("⚠️ Connexion MQTT perdue : " + cause.getMessage());
+                    System.out.println(" Connexion MQTT perdue : " + cause.getMessage());
                 }
 
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
                     String payload = new String(message.getPayload());
-                    System.out.println("📩 Message reçu sur [" + topic + "] : " + payload);
+                    System.out.println(" Message reçu sur [" + topic + "] : " + payload);
 
                     try {
                         // ObjectMapper : Transforme le texte JSON (ex: {"temp": 25}) en objet Java utilisable
@@ -106,7 +106,7 @@ public class MqttSubscriber {
 
                                 // Sauvegarde dans MySQL
                                 Mesure savedMesure = mesureRepo.save(m);
-                                System.out.println("💾 Mesure sauvegardée pour : " + c.getNom());
+                                System.out.println(" Mesure sauvegardée pour : " + c.getNom());
 
                                 // --- LOGIQUE DE SÉCURITÉ (FEU DE SIGNALISATION) ---
                                 try {
@@ -135,7 +135,7 @@ public class MqttSubscriber {
                                     responseMsg.setQos(1); 
                                     mqttClient.publish(statusTopic, responseMsg);
                                 } catch (MqttException e) {
-                                    System.err.println("❌ Erreur envoi commande LED : " + e.getMessage());
+                                    System.err.println(" Erreur envoi commande LED : " + e.getMessage());
                                 }
                             });
                         } 
@@ -160,11 +160,11 @@ public class MqttSubscriber {
                                 }
                                 
                                 depotRepo.save(d); // Mise à jour du dépôt en base
-                                System.out.println("🌡️ Environnement mis à jour pour : " + d.getNom());
+                                System.out.println(" Environnement mis à jour pour : " + d.getNom());
                             });
                         }
                     } catch (Exception e) {
-                        System.err.println("❌ Erreur traitement JSON : " + e.getMessage());
+                        System.err.println(" Erreur traitement JSON : " + e.getMessage());
                     }
                 }
 
@@ -180,12 +180,12 @@ public class MqttSubscriber {
             mqttClient.subscribe("depot/#", 1);
             
             System.out.println("\n========================================================");
-            System.out.println("🟢 CONNEXION MOSQUITTO RÉUSSIE 🟢");
-            System.out.println("✅ Le backend écoute les capteurs...");
+            System.out.println(" CONNEXION MOSQUITTO RÉUSSIE ");
+            System.out.println(" Le backend écoute les capteurs...");
             System.out.println("========================================================\n");
             
         } catch (MqttException e) {
-            System.err.println("❌ Impossible de démarrer MQTT : " + e.getMessage());
+            System.err.println("Impossible de démarrer MQTT : " + e.getMessage());
         }
     }
 

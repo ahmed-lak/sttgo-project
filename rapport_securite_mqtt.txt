@@ -1,0 +1,33 @@
+# Chapitre Y : Sécurisation des Communications IoT (Broker MQTT)
+
+## 1. Introduction à la sécurité IoT
+Dans une architecture de télémétrie industrielle (IoT), le Broker MQTT (Mosquitto) agit comme le cœur du système. Il reçoit les données des capteurs matériels (ESP32) et les transmet au serveur central (Backend Spring Boot). Par défaut, le protocole MQTT est ouvert (connexions anonymes autorisées), ce qui représente une vulnérabilité majeure : n'importe qui connaissant l'adresse IP du serveur pourrait intercepter les données des citernes ou injecter de fausses mesures.
+
+Pour pallier ce risque, nous avons implémenté un système de "Badges d'authentification" stricts à trois niveaux : au niveau du Broker, du Backend, et des clients ESP32.
+
+## 2. Sécurisation au niveau du Broker (Mosquitto)
+Le premier rempart de sécurité a été configuré directement dans le cœur du broker Mosquitto via son fichier de configuration (`mosquitto.conf`).
+
+*   Désactivation de l'anonymat : L'instruction `allow_anonymous false` a été ajoutée. Dès lors, le broker rejette instantanément toute tentative de connexion (lecture ou écriture) ne présentant pas d'identifiants valides.
+*   Fichier de mots de passe chiffrés : L'instruction `password_file /mosquitto/config/passwd` a été définie. Nous avons généré ce fichier à l'aide de l'utilitaire `mosquitto_passwd`, qui stocke les mots de passe des différents clients sous forme de hachages cryptographiques (et non en texte clair).
+
+## 3. Sécurisation au niveau du Backend (Abonné/Éditeur)
+Le backend Spring Boot a dû être adapté pour présenter son "badge" lors de la connexion au broker sécurisé. Dans le service `MqttSubscriber.java` :
+
+*   Injection Sécurisée : Les identifiants (`mqttUsername` et `mqttPassword`) ne sont pas codés en dur. Ils sont extraits du fichier `application.properties` (ou des variables d'environnement Docker) via l'annotation `@Value`.
+*   Paramètres de Connexion (MqttConnectOptions) : Avant d'établir la connexion, l'objet `options` est configuré avec `options.setUserName()` et `options.setPassword()`.
+*   Persistance des Sessions : Pour garantir l'intégrité des données même en cas de micro-coupure réseau, nous avons implémenté `MqttDefaultFilePersistence()` couplé à une qualité de service (QoS) de niveau 1.
+
+## 4. Sécurisation au niveau des Microcontrôleurs (ESP32)
+Les cartes ESP32, agissant comme clients MQTT distants, ont également été reconfigurées pour s'adapter à ce nouveau standard de sécurité.
+
+*   Authentification Matérielle : Dans le code source C++ de l'ESP32 (utilisant la bibliothèque PubSubClient ou similaire), la méthode de connexion a été modifiée. L'appel standard `client.connect("ESP32_Client")` a été remplacé par une version surchargée incluant les identifiants : `client.connect("ESP32_Client", "nom_utilisateur_capteur", "mot_de_passe_capteur")`.
+*   Isolation des Accès : En production, chaque microcontrôleur peut posséder ses propres identifiants. Si un ESP32 est compromis ou volé physiquement, son "badge" peut être révoqué du fichier `passwd` du broker sans affecter le reste de l'usine.
+
+## 5. Conclusion sur la sécurité des flux de données
+Grâce à cette implémentation, la chaîne de transmission est totalement verrouillée. 
+1. Un ESP32 non autorisé ne peut pas falsifier le niveau d'une citerne.
+2. Un attaquant externe ne peut pas s'abonner au flux pour espionner les températures de l'usine.
+3. Le backend communique de manière exclusive et authentifiée avec le broker interne.
+
+Cette architecture répond aux exigences de base de la cybersécurité industrielle (OT Security).

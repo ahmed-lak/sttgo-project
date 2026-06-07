@@ -114,7 +114,7 @@ public class Mesure {
         this.volume = capaciteMax * (this.pourcentage / 100.0);
 
         // Debug console pour vérifier
-        System.out.println("Mesure calculée -> niveau réel mesuré: " + this.niveau
+          System.out.println("Mesure calculée -> niveau réel mesuré: " + this.niveau
                 + " cm | pourcentage: " + this.pourcentage + "% | volume: " + this.volume + " L");
     }
 
