@@ -24,23 +24,23 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
   mesures: Mesure[] = [];            // Toutes les données brutes
   groupedDepots: GroupedDepot[] = []; // Données groupées par Dépôt
   filteredGroupedDepots: GroupedDepot[] = [];
-  produitsDisponibles: string[] = []; 
+  produitsDisponibles: string[] = [];
   filtreActuel: string = 'TOUT';
 
   // Alertes pour citernes vides ou critiques
   alertesCiternes: { nom: string, depot: string, pourcentage: number, type: string }[] = [];
   alertesVisible: boolean = true;
-  
+
   // Nouveaux états
   collapsedDepots: Set<number> = new Set();
   isAddingDepot: boolean = false;
   newDepot: Depot = { nom: '', localisation: '', produit: 'Gasoil', ordre: 0 };
-  
+
   intervalId: any;
   isLoading: boolean = true;
   savingDepotIds: Set<number> = new Set();
   hasUnsavedChanges: boolean = false;
-  
+
   // Positions pour les citernes indépendantes (sauvées localement)
   posIndepX: number = 0;
   posIndepY: number = 0;
@@ -62,7 +62,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
     private router: Router,
     private cdr: ChangeDetectorRef,
     public auth: AuthService
-  ) {}
+  ) { }
 
   /**
    * ngOnInit : Cette méthode s'exécute UNE FOIS quand le composant s'affiche.
@@ -74,7 +74,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
       this.router.navigate(['/login']);
       return;
     }
-    
+
     // Étape 2 : On charge les premières données
     this.chargerDonnees();
 
@@ -101,7 +101,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
             }, 2000); // On garde le verrou 2s de plus pour la sécurité
           },
           error: () => {
-             if (group.depot?.id) this.savingDepotIds.delete(group.depot.id);
+            if (group.depot?.id) this.savingDepotIds.delete(group.depot.id);
           }
         });
       } else {
@@ -110,7 +110,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    this.intervalId = setInterval(() => this.chargerDonnees(), 5000);
+    this.intervalId = setInterval(() => this.chargerDonnees(), 2000);
     setTimeout(() => { if ((window as any).lucide) (window as any).lucide.createIcons(); }, 200);
   }
 
@@ -146,7 +146,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
               this.cdr.detectChanges();
             }
           } else {
-             if (Math.abs(this.posIndepWidth - newWidth) > 5 || Math.abs(this.posIndepHeight - newHeight) > 5) {
+            if (Math.abs(this.posIndepWidth - newWidth) > 5 || Math.abs(this.posIndepHeight - newHeight) > 5) {
               this.posIndepWidth = newWidth;
               this.posIndepHeight = newHeight;
               this.cdr.detectChanges();
@@ -176,23 +176,23 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
         const data = res.mesures;
         const allDepots = res.depots;
         const citernes = res.toutesCiternes;
-        
+
         this.mesures = data.sort((a: Mesure, b: Mesure) => a.citerne.nom.localeCompare(b.citerne.nom));
-        
+
         // Liste restreinte aux produits demandés par l'utilisateur
         const produitsStandards = ['Gasoil', 'Hexane', 'Huile'];
-        
+
         // On fusionne avec ce qui existe en base pour ne rien perdre
         const productsFromCisterns = citernes.map((c: any) => c.produit);
         const productsFromMeasures = data.map((m: Mesure) => m.citerne.produit);
-        
+
         this.produitsDisponibles = Array.from(new Set([
           ...produitsStandards,
           ...productsFromCisterns,
           ...productsFromMeasures
         ]))
-        .filter(p => p != null && p !== '' && produitsStandards.includes(p))
-        .sort();
+          .filter(p => p != null && p !== '' && produitsStandards.includes(p))
+          .sort();
 
         // 1. Créer les groupes (tous)
         const groups: GroupedDepot[] = [];
@@ -200,7 +200,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
           .sort((a: Depot, b: Depot) => (a.ordre || 0) - (b.ordre || 0))
           .forEach((d: Depot) => {
             const mesuresDuDepot = this.mesures.filter(m => m.citerne.depot && m.citerne.depot.id === d.id);
-            
+
             // SI on a des changements locaux non sauvés, on garde la position/taille locale
             if (this.hasUnsavedChanges) {
               const localGroup = this.groupedDepots.find(g => g.depot && g.depot.id === d.id);
@@ -211,7 +211,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
                 d.height = localGroup.depot.height;
               }
             }
-            
+
             groups.push({ depot: d, mesures: mesuresDuDepot });
           });
         const sansDepot = this.mesures.filter(m => !m.citerne.depot);
@@ -234,10 +234,10 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
 
         // 3. Vérifier les alertes (citernes vides ou critiques)
         this.verifierAlertes();
-        
+
         this.isLoading = false;
-        this.cdr.detectChanges(); 
-        
+        this.cdr.detectChanges();
+
         // Ré-initialiser les icônes Lucide après le rendu
         setTimeout(() => {
           if ((window as any).lucide) (window as any).lucide.createIcons();
@@ -252,7 +252,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
 
   verifierAlertes() {
     const alerts: any[] = [];
-    
+
     this.mesures.forEach(m => {
       const isOff = this.isOffline(m.dateMesure);
       const isLow = m.pourcentage <= 20;
@@ -266,7 +266,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
         });
       }
     });
-    
+
     this.alertesCiternes = alerts;
   }
 
@@ -316,7 +316,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
   moveDepot(index: number, direction: number) {
     const list = this.groupedDepots.filter(g => g.depot);
     const targetIndex = index + direction;
-    
+
     if (targetIndex < 0 || targetIndex >= list.length) return;
 
     const current = list[index].depot!;
@@ -336,10 +336,10 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
 
   openAddModal() {
     const nextIndex = this.groupedDepots.length;
-    this.newDepot = { 
-      nom: '', 
-      localisation: '', 
-      produit: 'Gasoil', 
+    this.newDepot = {
+      nom: '',
+      localisation: '',
+      produit: 'Gasoil',
       ordre: nextIndex,
       posX: (nextIndex % 2) * 420,
       posY: Math.floor(nextIndex / 2) * 450
@@ -363,10 +363,10 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
     if (group.depot) {
       let newX = (group.depot.posX || 0) + distance.x;
       let newY = (group.depot.posY || 0) + distance.y;
-      
+
       newX = Math.max(0, newX);
       newY = Math.max(0, newY);
-      
+
       group.depot.posX = Math.round(newX / SNAP_GRID) * SNAP_GRID;
       group.depot.posY = Math.round(newY / SNAP_GRID) * SNAP_GRID;
 
@@ -389,7 +389,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
 
   saveLayout() {
     if (!this.auth.isAdmin()) return;
-    
+
     this.isLoading = true;
     const saveObservables = this.groupedDepots
       .filter(g => g.depot != null)
@@ -424,7 +424,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
   // Helper pour savoir si un groupe doit être affiché selon le filtre produit
   shouldShowGroup(group: GroupedDepot): boolean {
     if (this.filtreActuel === 'TOUT') return true;
-    
+
     // Si le dépôt a lui-même un produit défini
     if (group.depot && group.depot.produit === this.filtreActuel) return true;
 
@@ -439,17 +439,17 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
 
   // Couleurs par type de produit
   getProduitColor(produit: string | undefined | null): string {
-    if (!produit) return '#64748b'; 
+    if (!produit) return '#64748b';
     const p = produit.toLowerCase();
     if (p.includes('gasoil')) return '#10b981'; // Green for Gasoil
     if (p.includes('hexane')) return '#2563eb'; // Blue for Hexane
     if (p.includes('huile')) return '#eab308';  // Yellow for Huile
-    return '#64748b'; 
+    return '#64748b';
   }
 
   getColor(p: number, produit?: string): string {
     if (p < 20) return '#ef4444'; // Alerte critique rouge (< 20%)
-    
+
     // Sinon, couleur fixe selon le type de produit
     return this.getProduitColor(produit);
   }
@@ -474,10 +474,10 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
     if (!dateStr) return true;
     const lastSeen = new Date(dateStr).getTime();
     const now = new Date().getTime();
-    
+
     // Calcul de la différence en heures
     const diffInHours = (now - lastSeen) / (1000 * 60 * 60);
-    
+
     return diffInHours > 12; // Retourne vrai si plus de 12h d'inactivité
   }
 
