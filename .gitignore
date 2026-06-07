@@ -29,6 +29,9 @@ yarn-error.log*
 *.log
 docker-compose.override.yml
 
+# Environment secrets (never commit!)
+.env
+
 # OS
 .DS_Store
 Thumbs.db
