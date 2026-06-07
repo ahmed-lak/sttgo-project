@@ -39,6 +39,7 @@ services:
       - MQTT_BROKER_URL=tcp://mosquitto:1883
       - APP_FRONTEND_URL=https://sttgo.francecentral.cloudapp.azure.com
       - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     depends_on:
       mysql-db:
         condition: service_healthy
