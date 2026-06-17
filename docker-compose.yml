@@ -3,8 +3,8 @@ services:
     image: mysql:8.0
     container_name: mysql-db
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: sttgo_db
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
     ports:
       - "3307:3306"
     volumes:
@@ -20,7 +20,6 @@ services:
     container_name: mosquitto-broker
     ports:
       - "1883:1883"
-      - "9001:9001"
     volumes:
       - ./mosquitto/config:/mosquitto/config
       - ./mosquitto/data:/mosquitto/data
@@ -33,9 +32,9 @@ services:
     ports:
       - "8889:8889"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/sttgo_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/${DB_NAME}?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_PASSWORD=${DB_ROOT_PASSWORD}
       - MQTT_BROKER_URL=tcp://mosquitto:1883
       - APP_FRONTEND_URL=https://sttgo.francecentral.cloudapp.azure.com
       - MAIL_PASSWORD=${MAIL_PASSWORD}
