@@ -42,3 +42,5 @@ paho*/
 # Mosquitto data and logs (auto-generated, causes git conflicts)
 mosquitto/data/
 mosquitto/log/
+mosquitto/config/passwd
+
